@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leitor de Panic Log — Diagnóstico iPhone</title>
+<style>
+  :root{
+    --bg: #0d1117;
+    --panel: #141b22;
+    --panel-2: #182029;
+    --line: #263140;
+    --text: #dbe4ec;
+    --muted: #7c8b9b;
+    --accent: #3fdb8f;
+    --accent-dim: #235c43;
+    --warn: #e0a23d;
+    --danger: #e0603d;
+    --mono: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+    --sans: 'IBM Plex Sans', -apple-system, 'Segoe UI', Roboto, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(circle at 1px 1px, rgba(63,219,143,0.05) 1px, transparent 0) 0 0/22px 22px,
+      var(--bg);
+    color:var(--text);
+    font-family:var(--sans);
+    min-height:100vh;
+    line-height:1.5;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:28px 18px 60px;}
+
+  header{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    gap:16px;
+    padding-bottom:20px;
+    border-bottom:1px solid var(--line);
+    margin-bottom:28px;
+    flex-wrap:wrap;
+  }
+  header .brand{display:flex;align-items:baseline;gap:10px;}
+  header h1{
+    font-size:1.3rem;
+    font-weight:600;
+    margin:0;
+    letter-spacing:0.2px;
+  }
+  header h1 .dot{color:var(--accent);}
+  header p{margin:0;color:var(--muted);font-size:0.85rem;}
+  .status-pill{
+    font-family:var(--mono);
+    font-size:0.72rem;
+    color:var(--accent);
+    background:rgba(63,219,143,0.08);
+    border:1px solid var(--accent-dim);
+    border-radius:20px;
+    padding:4px 12px;
+    white-space:nowrap;
+  }
+
+  .grid{display:grid;grid-template-columns:1fr;gap:22px;}
+  @media(min-width:880px){
+    .grid{grid-template-columns: 1fr 1fr;align-items:start;}
+  }
+
+  .card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:20px;
+  }
+  .card h2{
+    font-size:0.78rem;
+    text-transform:uppercase;
+    letter-spacing:1px;
+    color:var(--muted);
+    margin:0 0 14px 0;
+    font-weight:600;
+  }
+
+  textarea{
+    width:100%;
+    min-height:260px;
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    border-radius:8px;
+    color:var(--text);
+    font-family:var(--mono);
+    font-size:0.82rem;
+    padding:14px;
+    resize:vertical;
+  }
+  textarea:focus, input:focus, button:focus-visible{
+    outline:2px solid var(--accent);
+    outline-offset:1px;
+  }
+  textarea::placeholder{color:#4b5866;}
+
+  .tabs{display:flex;gap:8px;margin-bottom:14px;}
+  .tab-btn{
+    font-family:var(--sans);
+    font-size:0.78rem;
+    font-weight:600;
+    background:transparent;
+    color:var(--muted);
+    border:1px solid var(--line);
+    border-radius:7px;
+    padding:8px 14px;
+    cursor:pointer;
+  }
+  .tab-btn.active{color:#08130d;background:var(--accent);border-color:var(--accent);}
+  .snippet-input{
+    width:100%;
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    border-radius:8px;
+    color:var(--text);
+    font-family:var(--mono);
+    font-size:0.9rem;
+    padding:12px 14px;
+  }
+  .hint{color:var(--muted);font-size:0.78rem;margin:8px 0 0;}
+
+  .row{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;}
+  button{
+    font-family:var(--sans);
+    font-weight:600;
+    font-size:0.85rem;
+    border-radius:7px;
+    padding:10px 18px;
+    border:1px solid transparent;
+    cursor:pointer;
+    transition:transform .08s ease, background .15s ease;
+  }
+  button:active{transform:scale(0.98);}
+  .btn-primary{background:var(--accent);color:#08130d;}
+  .btn-primary:hover{background:#5be3a4;}
+  .btn-ghost{background:transparent;border-color:var(--line);color:var(--text);}
+  .btn-ghost:hover{border-color:var(--accent-dim);}
+
+  .field-list{display:flex;flex-direction:column;gap:10px;font-family:var(--mono);font-size:0.82rem;}
+  .field{display:grid;grid-template-columns:130px 1fr;gap:10px;border-bottom:1px dashed var(--line);padding-bottom:8px;}
+  .field .k{color:var(--muted);}
+  .field .v{color:var(--text);word-break:break-all;}
+
+  .hex-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:0.8rem;margin-top:4px;}
+  .hex-table th{text-align:left;color:var(--muted);font-weight:500;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.5px;padding:6px 8px;border-bottom:1px solid var(--line);}
+  .hex-table td{padding:6px 8px;border-bottom:1px solid var(--line);}
+  .hex-table tr:last-child td{border-bottom:none;}
+
+  .verdict{
+    border-radius:8px;
+    padding:16px;
+    margin-top:16px;
+    border:1px solid var(--accent-dim);
+    background:linear-gradient(180deg, rgba(63,219,143,0.07), rgba(63,219,143,0.02));
+  }
+  .verdict.unknown{
+    border-color:#3a4552;
+    background:rgba(255,255,255,0.02);
+  }
+  .verdict .tag{
+    display:inline-block;
+    font-family:var(--mono);
+    font-size:0.68rem;
+    color:var(--accent);
+    background:rgba(63,219,143,0.12);
+    padding:2px 8px;
+    border-radius:4px;
+    margin-bottom:8px;
+  }
+  .verdict.unknown .tag{color:var(--warn);background:rgba(224,162,61,0.12);}
+  .verdict h3{margin:0 0 6px;font-size:1rem;}
+  .verdict p{margin:0 0 6px;color:#c3ccd6;font-size:0.88rem;}
+  .verdict p.solucao{color:var(--text);}
+  .verdict p .label{color:var(--muted);font-size:0.78rem;display:block;margin-bottom:2px;}
+
+  .empty{color:var(--muted);font-size:0.85rem;font-style:italic;}
+
+  .conv-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
+  .conv-row input{
+    flex:1;
+    min-width:110px;
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    border-radius:7px;
+    color:var(--text);
+    font-family:var(--mono);
+    font-size:0.85rem;
+    padding:9px 12px;
+  }
+  .conv-label{font-size:0.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:5px;}
+  .conv-col{flex:1;min-width:140px;}
+
+  footer{margin-top:30px;color:var(--muted);font-size:0.78rem;text-align:center;}
+  footer a{color:var(--accent);text-decoration:none;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brand">
+      <h1>Leitor<span class="dot">·</span>Panic</h1>
+      <p>diagnóstico de panic log + conversor hex</p>
+    </div>
+    <div style="text-align:right;">
+      <span class="status-pill" id="statusPill">conectando à base online...</span>
+      <div id="statusDetail" style="font-family:var(--mono);font-size:0.68rem;color:var(--danger);margin-top:6px;max-width:320px;"></div>
+      <div style="font-family:var(--mono);font-size:0.62rem;color:#4b5866;margin-top:4px;">versão gerada: 2026-09-04 05:49 UTC</div>
+    </div>
+  </header>
+
+  <div class="grid">
+
+    <!-- INPUT -->
+    <div class="card">
+      <h2>Entrada</h2>
+      <div class="tabs">
+        <button class="tab-btn active" id="tabFull" onclick="setMode('full')">Log completo</button>
+        <button class="tab-btn" id="tabSnippet" onclick="setMode('snippet')">Só o código encontrado</button>
+      </div>
+
+      <div id="modeFull">
+        <div class="row" style="margin:0 0 10px;">
+          <label class="btn-ghost" style="cursor:pointer;" for="fileInput">
+            📁 Escolher arquivo do explorador
+          </label>
+          <input type="file" id="fileInput" accept=".ips,.txt,.json,text/plain,application/json,application/octet-stream" style="display:none;" onchange="carregarArquivo(event)">
+          <span class="hint" id="fileName" style="align-self:center;margin:0;"></span>
+        </div>
+        <textarea id="logInput" placeholder="Cole aqui o conteúdo do panic full log (.ips) exportado do iPhone, ou escolha o arquivo acima..."></textarea>
+      </div>
+
+      <div id="modeSnippet" style="display:none;">
+        <input type="text" class="snippet-input" id="snippetInput" placeholder="Ex: 0xfffffff01a2b3c40  ou  AppleNANDFlash I/O timeout">
+        <p class="hint">Cole só o trecho que você encontrou — um endereço hex, o nome de um driver/IC, ou a linha de erro. Não precisa do log inteiro.</p>
+      </div>
+
+      <div class="row">
+        <button class="btn-primary" onclick="analisar()">Analisar</button>
+        <button class="btn-ghost" onclick="limparLog()">Limpar</button>
+        <button class="btn-ghost" id="btnExemplo" onclick="carregarExemplo()">Carregar exemplo</button>
+      </div>
+    </div>
+
+    <!-- RESULT -->
+    <div class="card">
+      <h2>Resultado</h2>
+      <div id="resultado">
+        <p class="empty">Cole um log e clique em "Analisar" para ver os campos extraídos e o diagnóstico sugerido.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- HEX TABLE -->
+  <div class="card" style="margin-top:22px;">
+    <h2>Endereços hexadecimais encontrados no log</h2>
+    <div id="hexResult"><p class="empty">Nenhum log analisado ainda.</p></div>
+  </div>
+
+  <!-- MANUAL CONVERTER -->
+  <div class="card" style="margin-top:22px;">
+    <h2>Conversor manual</h2>
+    <div class="conv-row">
+      <div class="conv-col">
+        <span class="conv-label">Hexadecimal</span>
+        <input type="text" id="hexIn" placeholder="0x1F4" oninput="fromHex()">
+      </div>
+      <div class="conv-col">
+        <span class="conv-label">Decimal</span>
+        <input type="text" id="decIn" placeholder="500" oninput="fromDec()">
+      </div>
+      <div class="conv-col">
+        <span class="conv-label">Binário</span>
+        <input type="text" id="binIn" placeholder="111110100" oninput="fromBin()">
+      </div>
+      <div class="conv-col">
+        <span class="conv-label">ASCII (se aplicável)</span>
+        <input type="text" id="asciiOut" placeholder="—" readonly>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    iTechLab — base de soluções conectada ao Supabase.<br>
+    Casos novos são cadastrados direto no banco (Table Editor ou SQL Editor do Supabase).
+  </footer>
+
+</div>
+
+<script>
+// ---------- Captura qualquer erro de JS e mostra na tela (debug) ----------
+window.addEventListener('error', function(e){
+  const detalhe = document.getElementById('statusDetail');
+  if(detalhe) detalhe.textContent = 'Erro JS: ' + e.message + ' (linha ' + e.lineno + ')';
+});
+window.addEventListener('unhandledrejection', function(e){
+  const detalhe = document.getElementById('statusDetail');
+  const msg = (e.reason && e.reason.message) ? e.reason.message : String(e.reason);
+  if(detalhe) detalhe.textContent = 'Erro (promise não tratada): ' + msg;
+});
+
+// (a base é carregada no fim do script, depois de tudo estar declarado)
+
+const SUPABASE_URL = 'https://vpwwtgecmpbuucpyunot.supabase.co/rest/v1/';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwd3d0Z2VjbXBidXVjcHl1bm90Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0ODEwMTEsImV4cCI6MjEwNDA1NzAxMX0.4l1IxtNRB2SP-hfxifcE34DjLGgP6SktQMz9qcsDHjA';
+
+let baseRemota = null; // cache em memória depois do primeiro carregamento
+let baseRemotaErro = false;
+let baseRemotaErroMsg = '';
+
+async function carregarBaseRemota(){
+  try{
+    const pedido = fetch(SUPABASE_URL + 'solucoes?select=*', {
+      headers: {
+        apikey: SUPABASE_KEY,
+        Authorization: 'Bearer ' + SUPABASE_KEY
+      }
+    });
+    const tempoEsgotado = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('tempo esgotado (8s)')), 8000)
+    );
+    const resp = await Promise.race([pedido, tempoEsgotado]);
+    if(!resp.ok){
+      const corpo = await resp.text().catch(() => '');
+      throw new Error('HTTP ' + resp.status + (corpo ? ' — ' + corpo.slice(0,150) : ''));
+    }
+    baseRemota = await resp.json();
+    baseRemotaErro = false;
+    baseRemotaErroMsg = '';
+  }catch(e){
+    baseRemota = null;
+    baseRemotaErro = true;
+    baseRemotaErroMsg = e.message || String(e);
+    console.error('Falha ao carregar base remota:', e);
+  }
+  atualizarStatusPill();
+  return baseRemota;
+}
+
+function atualizarStatusPill(){
+  const pill = document.getElementById('statusPill');
+  const detalhe = document.getElementById('statusDetail');
+  if(baseRemota){
+    pill.textContent = `base online · ${baseRemota.length} caso(s) cadastrado(s)`;
+    if(detalhe) detalhe.textContent = '';
+  } else if(baseRemotaErro){
+    pill.textContent = 'sem conexão com a base online';
+    if(detalhe) detalhe.textContent = 'Erro: ' + baseRemotaErroMsg;
+  } else {
+    pill.textContent = 'conectando à base online...';
+  }
+}
+
+function buscarNaBaseRemota(textoParaMatch, hexsEncontrados, produto){
+  if(!baseRemota) return null;
+  const textoLower = textoParaMatch.toLowerCase();
+  const hexsLower = hexsEncontrados.map(h => h.toLowerCase());
+  for(const row of baseRemota){
+    if(row.modelo && produto && row.modelo !== produto) continue; // filtra por modelo se especificado
+    if(row.tipo === 'hex'){
+      if(row.padrao && hexsLower.includes(row.padrao.toLowerCase())) return row;
+    } else {
+      if(row.padrao && textoLower.includes(row.padrao.toLowerCase())) return row;
+    }
+  }
+  return null;
+}
+
+// ---------- Tabela de "sensor array" (panics de SMC) por modelo ----------
+// Baseada em relatos documentados pela comunidade de reparo (iFixit), não é doc oficial da Apple.
+const TABELA_SENSOR_ARRAY = {
+  iphone13: {
+    produtos: ['iPhone14,5','iPhone14,2','iPhone14,3'],
+    flags: [
+      {mask:0x800, label:'Dock de carga'},
+      {mask:0x4000, label:'Bateria'},
+      {mask:0x1000, label:'Flex ALS (sensor frontal)'},
+      {mask:0x400, label:'Interposer'}
+    ]
+  },
+  iphone13mini: {
+    produtos: ['iPhone14,4'],
+    flags: [
+      {mask:0x400, label:'CARA (B) — confirmar com o técnico'}
+    ]
+  },
+  iphone14: {
+    produtos: ['iPhone14,7','iPhone14,8'],
+    flags: [
+      {mask:0x100000, label:'Dock de carga'},
+      {mask:0x200000, label:'Flex ALS (sensor frontal)'},
+      {mask:0x400000, label:'Flex de indução (carga sem fio)'},
+      {mask:0x500000, label:'Bateria'}
+    ]
+  },
+  iphone14pro: {
+    produtos: ['iPhone15,2','iPhone15,3'],
+    flags: [
+      {mask:0x41, label:'Bateria'},
+      {mask:0x20000, label:'Giroscópio / união de placa'},
+      {mask:0x400000, label:'Dock de carga'},
+      {mask:0x800000, label:'Flex ALS (sensor frontal)'},
+      {mask:0x100000, label:'Flex do botão power'}
+    ]
+  },
+  iphone15: {
+    // dock de carga usando 0x80000 (5 dígitos) — validado com um panic real analisado nesta conversa
+    // (valor bruto 2621440 = 0x280000 = 0x80000 + 0x200000). Se tiver certeza que é 0x800000, avisa.
+    produtos: ['iPhone15,4','iPhone15,5'],
+    flags: [
+      {mask:0xa1, label:'Bateria'},
+      {mask:0x80000, label:'Dock de carga'},
+      {mask:0x100000, label:'Flex ALS (sensor frontal)'},
+      {mask:0x200000, label:'Flex de indução (carga sem fio)'}
+    ]
+  },
+  iphone15pro: {
+    produtos: ['iPhone16,1','iPhone16,2'],
+    flags: [
+      {mask:0xa1, label:'Bateria'},
+      {mask:0x100000, label:'Dock de carga'},
+      {mask:0x200000, label:'Flex ALS (sensor frontal)'},
+      {mask:0x400000, label:'Flex de indução (carga sem fio)'}
+    ]
+  },
+  iphone16: {
+    produtos: ['iPhone17,3','iPhone17,4'],
+    flags: [
+      {mask:0xa9, label:'Bateria'},
+      {mask:0x100000, label:'Bússola'},
+      {mask:0x200000, label:'Flex de indução (carga sem fio)'},
+      {mask:0x180000, label:'Dock de carga'},
+      {mask:0x80000, label:'Sensor biométrico OU dock de carga — valor ambíguo, confirmar'}
+    ]
+  },
+  iphone16pro: {
+    produtos: ['iPhone17,1','iPhone17,2'],
+    flags: [
+      {mask:0xa8, label:'Bateria'},
+      {mask:0x80000, label:'Giroscópio'},
+      {mask:0x100000, label:'Sensor biométrico'},
+      {mask:0x200000, label:'Bússola'},
+      {mask:0x400000, label:'Flex de indução (carga sem fio)'},
+      {mask:0x300000, label:'Dock de carga'}
+    ]
+  }
+};
+
+function buscarGrupoPorProduto(produto){
+  if(!produto) return null;
+  for(const key in TABELA_SENSOR_ARRAY){
+    if(TABELA_SENSOR_ARRAY[key].produtos.includes(produto)) return TABELA_SENSOR_ARRAY[key];
+  }
+  return null;
+}
+
+// ---------- Base de conhecimento (EXEMPLO — trocar por casos reais da assistência) ----------
+const BASE_CONHECIMENTO = [
+  {
+    id: 'smc_generico',
+    nome: 'SMC PANIC (falha de comunicação com sensor)',
+    padroes: [/smc panic/i, /smc bsc failure/i],
+    causa: 'Panic do System Management Controller (SMC) por falha de comunicação com um sensor específico. O valor da "sensor array" no log aponta qual componente está sem resposta.',
+    solucao: 'Converter o valor da sensor array para hexadecimal e cruzar com a tabela do modelo (porta de carga, sensor frontal, bateria, bobina de carga sem fio, giroscópio ou flex do power, dependendo do modelo).'
+  },
+  {
+    id: 'watchdog_mic',
+    nome: 'Watchdog do userspace — sensor de microfone ausente (mic1/mic2)',
+    padroes: [/missing sensor\(s\):\s*mic\d/i, /thermalmonitord/i],
+    causa: 'O watchdog do userspace derrubou o sistema porque o thermalmonitord não conseguiu confirmar a presença do microfone inferior (mic1 ou mic2) durante a checagem de saúde. Padrão bem documentado em iPhone X/11, normalmente com reinícios em ciclos de ~180 segundos.',
+    solucao: 'Mic2 costuma estar no flex do power/flash (power flex cable) — é o primeiro suspeito, não o flex do conector de carga. Trocar por uma flex de boa procedência (aftermarket de baixa qualidade às vezes não resolve). Se persistir após a troca, checar oxidação/corrosão no conector da placa ou dano na região durante troca de tampa traseira, principalmente se o aparelho já pegou líquido.'
+  },
+  {
+    id: 'nand',
+    nome: 'Falha de armazenamento NAND / controlador de flash',
+    padroes: [/nand/i, /appleNandFlash/i, /disk0/i, /flash\s*controller/i, /IOFlashController/i],
+    causa: 'Indícios de falha no chip de armazenamento (NAND) ou no controlador de flash integrado ao SoC. Comum em placas com desgaste de memória ou reballing malfeito anteriormente.',
+    solucao: 'Testar boot em modo DFU/recovery, checar se o disco é reconhecido pelo 3uTools/Finder. Se não montar, avaliar reflow/reball do NAND ou substituição da placa lógica. Fazer backup imediato se o aparelho ainda ligar.'
+  },
+  {
+    id: 'pmu',
+    nome: 'Instabilidade de energia / PMU',
+    padroes: [/\bpmu\b/i, /power management/i, /\bsmc\b/i, /charge trap/i, /battery/i],
+    causa: 'Panic relacionado ao gerenciamento de energia — pode envolver o IC de gerenciamento de energia (PMU), bateria degradada ou curto em linha de alimentação.',
+    solucao: 'Medir consumo em fonte de bancada, checar curto nas linhas de PP_VDD antes de reflow em qualquer IC. Testar com bateria conhecida boa. Se consumo estiver anormal, mapear componente em curto termicamente.'
+  },
+  {
+    id: 'wifi_bt',
+    nome: 'Wi-Fi / Bluetooth (Broadcom)',
+    padroes: [/broadcom/i, /bcmwlan/i, /wifi/i, /bluetooth/i, /AppleBCM/i],
+    causa: 'Panic disparado por driver do chip combo Wi-Fi/Bluetooth. Pode ser falha do próprio IC, dessoldagem parcial ou dano por líquido na região.',
+    solucao: 'Inspecionar oxidação/corrosão na área do chip Wi-Fi/BT sob microscópio. Testar Wi-Fi isoladamente no modo diagnóstico. Reballing do IC combo costuma resolver quando não há dano por líquido.'
+  },
+  {
+    id: 'display',
+    nome: 'Pipeline de display / backlight',
+    padroes: [/backlight/i, /displaypipe/i, /\bdcp\b/i, /appledisplay/i],
+    causa: 'Erro relacionado ao controlador de display (DCP) ou circuito de backlight — comum após troca de tela não original ou dano físico na flex da tela.',
+    solucao: 'Testar com tela original conhecida boa. Checar continuidade da flex do display e capacitores/bobinas de backlight na placa. Reprogramar DCP se aplicável ao modelo.'
+  },
+  {
+    id: 'baseband',
+    nome: 'Baseband / modem celular',
+    padroes: [/baseband/i, /qualcomm/i, /\bmodem\b/i, /applebaseband/i],
+    causa: 'Panic vindo do subsistema de baseband — pode indicar corrupção de firmware do modem ou falha no IC de RF.',
+    solucao: 'Tentar restauração via IPSW para reprogramar o baseband. Se persistir após restore limpo, investigar hardware do modem/RF na placa.'
+  }
+];
+
+// ---------- Parse do formato .ips real (JSON) ----------
+function tentarParseJsonIps(texto){
+  try{
+    const primeiraQuebra = texto.indexOf('\n');
+    if(primeiraQuebra === -1) return null;
+    const header = JSON.parse(texto.slice(0, primeiraQuebra));
+    const body = JSON.parse(texto.slice(primeiraQuebra + 1));
+    if(!body || typeof body !== 'object') return null;
+    return {header, body};
+  }catch(e){
+    return null;
+  }
+}
+
+function carregarArquivo(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  document.getElementById('fileName').textContent = file.name;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    document.getElementById('logInput').value = e.target.result;
+  };
+  reader.readAsText(file);
+}
+
+// ---------- Sensor array (SMC) ----------
+function extrairSensorArray(texto){
+  const m = texto.match(/sensor array\s+\d+\s*-\s*\d+\s+is\s+([^\n]+)/i);
+  if(!m) return null;
+  return m[1].split(',').map(s => s.trim()).filter(Boolean).map(p => {
+    return /^0x/i.test(p) ? parseInt(p, 16) : parseInt(p, 10);
+  });
+}
+
+function montarCardSensorArray(texto, produto){
+  const valores = extrairSensorArray(texto);
+  if(!valores) return '';
+  const grupo = buscarGrupoPorProduto(produto);
+  let linhas = '';
+  let algumNaoZero = false;
+
+  valores.forEach((v, i) => {
+    if(!v){ return; }
+    algumNaoZero = true;
+    const hex = '0x' + v.toString(16);
+    let componentes = [];
+    if(grupo){
+      grupo.flags.forEach(f => {
+        if((v & f.mask) === f.mask) componentes.push(f.label);
+      });
+    }
+    const achou = componentes.length
+      ? ' — ' + componentes.join(' + ')
+      : (grupo ? ' — sem correspondência exata na tabela conhecida' : '');
+    linhas += `<div class="field"><span class="k">Posição ${i}</span><span class="v">${v} → ${hex}${achou}</span></div>`;
+  });
+
+  if(!algumNaoZero) return '';
+
+  const aviso = grupo ? '' :
+    `<p class="hint">Ainda não tenho tabela de sensor array para o modelo "${produto ? escapeHtml(produto) : 'desconhecido'}" — os valores acima são só a conversão para hex, sem componente identificado.</p>`;
+
+  return `<div class="verdict">
+    <span class="tag">sensor array · SMC</span>
+    <h3>Valores da sensor array convertidos</h3>
+    <div class="field-list">${linhas}</div>
+    ${aviso}
+    <p class="hint" style="margin-top:10px;">Tabela baseada em dados de bancada da iTechLab, com alguns pontos ainda a confirmar (marcados acima) — confirme fisicamente antes de fechar o diagnóstico.</p>
+  </div>`;
+}
+
+// ---------- Utilidades ----------
+function extrairCampo(regex, texto){
+  const m = texto.match(regex);
+  return m ? m[1].trim() : null;
+}
+
+function extrairHexs(texto){
+  const encontrados = texto.match(/0x[0-9a-fA-F]{4,}/g) || [];
+  return [...new Set(encontrados)].slice(0, 15);
+}
+
+function hexParaDecASCII(hexStr){
+  const limpo = hexStr.replace(/^0x/i, '');
+  let dec;
+  try { dec = BigInt('0x' + limpo).toString(10); } catch(e){ dec = '—'; }
+  let ascii = '';
+  if(limpo.length % 2 === 0 && limpo.length <= 16){
+    for(let i=0; i<limpo.length; i+=2){
+      const code = parseInt(limpo.substr(i,2), 16);
+      ascii += (code >= 32 && code <= 126) ? String.fromCharCode(code) : '·';
+    }
+  }
+  return {dec, ascii};
+}
+
+// ---------- Modo de entrada ----------
+let modoAtual = 'full';
+function setMode(m){
+  modoAtual = m;
+  document.getElementById('tabFull').classList.toggle('active', m==='full');
+  document.getElementById('tabSnippet').classList.toggle('active', m==='snippet');
+  document.getElementById('modeFull').style.display = m==='full' ? 'block' : 'none';
+  document.getElementById('modeSnippet').style.display = m==='snippet' ? 'block' : 'none';
+  document.getElementById('btnExemplo').textContent = m==='full' ? 'Carregar exemplo' : 'Carregar exemplo de código';
+  limparLog();
+}
+
+// ---------- Ação principal ----------
+async function analisar(){
+  const texto = modoAtual === 'full'
+    ? document.getElementById('logInput').value
+    : document.getElementById('snippetInput').value;
+
+  if(!texto.trim()){
+    document.getElementById('resultado').innerHTML = `<p class="empty">${modoAtual==='full' ? 'Cole um log primeiro.' : 'Cole o código/trecho encontrado primeiro.'}</p>`;
+    return;
+  }
+
+  let html = '';
+  let textoParaMatch = texto; // texto usado para casar com a base de conhecimento
+  let produtoDetectado = null;
+
+  if(modoAtual === 'full'){
+    const jsonParse = tentarParseJsonIps(texto);
+    let campos;
+    if(jsonParse){
+      const {header, body} = jsonParse;
+      produtoDetectado = body.product || null;
+      campos = {
+        'Modelo': body.product || null,
+        'Build/iOS': body.build || header.os_version || null,
+        'Incident ID': body.incident || header.incident_id || null,
+        'Data': body.date || header.timestamp || null,
+        'String do panic': body.panicString ? body.panicString.split('\n')[0] : null
+      };
+      textoParaMatch = body.panicString || texto;
+      html += `<p class="hint" style="margin-bottom:10px;">Arquivo .ips reconhecido (formato JSON).</p>`;
+    } else {
+      campos = {
+        'Modelo': extrairCampo(/Hardware Model:\s*(.+)/i, texto) || extrairCampo(/product\s*[:=]\s*"?([\w,]+)"?/i, texto),
+        'Incident ID': extrairCampo(/Incident Identifier:\s*(.+)/i, texto),
+        'Versão iOS': extrairCampo(/(?:OS|iOS) Version:\s*(.+)/i, texto),
+        'Processo': extrairCampo(/Process:\s*(.+)/i, texto),
+        'String do panic': extrairCampo(/panic\(cpu \d+[^)]*\):\s*(.+)/i, texto) || extrairCampo(/(panic string|Debugger message):\s*(.+)/i, texto)
+      };
+      produtoDetectado = campos['Modelo'];
+    }
+    html += '<div class="field-list">';
+    for(const [k,v] of Object.entries(campos)){
+      html += `<div class="field"><span class="k">${k}</span><span class="v">${v ? escapeHtml(v) : '<span style="color:#4b5866">não encontrado</span>'}</span></div>`;
+    }
+    html += '</div>';
+  } else {
+    html += `<div class="field-list"><div class="field"><span class="k">Trecho analisado</span><span class="v">${escapeHtml(texto.trim())}</span></div></div>`;
+  }
+
+  const hexsEncontrados = extrairHexs(texto + '\n' + textoParaMatch);
+
+  // 1) tenta a base remota (Supabase) primeiro
+  if(!baseRemota && !baseRemotaErro){
+    await carregarBaseRemota();
+  }
+  const matchRemoto = buscarNaBaseRemota(textoParaMatch, hexsEncontrados, produtoDetectado);
+
+  // 2) fallback: base local de exemplos
+  let match = null;
+  if(!matchRemoto){
+    for(const item of BASE_CONHECIMENTO){
+      if(item.padroes.some(p => p.test(textoParaMatch))){ match = item; break; }
+    }
+  }
+
+  const sensorArrayHtml = montarCardSensorArray(textoParaMatch, produtoDetectado);
+
+  if(sensorArrayHtml){
+    html += sensorArrayHtml;
+  } else if(matchRemoto){
+    html += `<div class="verdict">
+      <span class="tag">base online</span>
+      <h3>${escapeHtml(matchRemoto.componente || matchRemoto.padrao)}</h3>
+      ${matchRemoto.modelo ? `<p><span class="label">Modelo</span>${escapeHtml(matchRemoto.modelo)}</p>` : ''}
+      ${matchRemoto.causa ? `<p><span class="label">Causa provável</span>${escapeHtml(matchRemoto.causa)}</p>` : ''}
+      <p class="solucao"><span class="label">Solução sugerida</span>${escapeHtml(matchRemoto.solucao || '')}</p>
+    </div>`;
+  } else if(match){
+    html += `<div class="verdict">
+      <span class="tag">exemplo local</span>
+      <h3>${match.nome}</h3>
+      <p><span class="label">Causa provável</span>${match.causa}</p>
+      <p class="solucao"><span class="label">Solução sugerida</span>${match.solucao}</p>
+    </div>`;
+  } else {
+    html += `<div class="verdict unknown">
+      <span class="tag">sem correspondência na base</span>
+      <h3>Assinatura não catalogada</h3>
+      <p>Nenhum padrão bateu com esse log — nem na base online, nem nos exemplos locais. Vale cadastrar esse caso no Supabase depois de diagnosticar, pra base crescer.</p>
+    </div>`;
+  }
+
+  document.getElementById('resultado').innerHTML = html;
+
+  // tabela de hex
+  const hexs = hexsEncontrados;
+  if(hexs.length === 0){
+    document.getElementById('hexResult').innerHTML = '<p class="empty">Nenhum valor hexadecimal (0x...) encontrado nesse log.</p>';
+  } else {
+    let t = '<table class="hex-table"><thead><tr><th>Hex</th><th>Decimal</th><th>ASCII</th></tr></thead><tbody>';
+    hexs.forEach(h => {
+      const {dec, ascii} = hexParaDecASCII(h);
+      t += `<tr><td>${h}</td><td>${dec}</td><td>${ascii || '—'}</td></tr>`;
+    });
+    t += '</tbody></table>';
+    document.getElementById('hexResult').innerHTML = t;
+  }
+}
+
+function limparLog(){
+  document.getElementById('logInput').value = '';
+  document.getElementById('snippetInput').value = '';
+  document.getElementById('fileName').textContent = '';
+  document.getElementById('fileInput').value = '';
+  document.getElementById('resultado').innerHTML = `<p class="empty">${modoAtual==='full' ? 'Cole um log e clique em "Analisar" para ver os campos extraídos e o diagnóstico sugerido.' : 'Cole o código/trecho encontrado e clique em "Analisar".'}</p>`;
+  document.getElementById('hexResult').innerHTML = '<p class="empty">Nenhuma análise feita ainda.</p>';
+}
+
+function carregarExemplo(){
+  if(modoAtual === 'full'){
+    document.getElementById('logInput').value =
+`{"bug_type":"210","timestamp":"2026-01-15 07:28:50.00 -0800","os_version":"iPhone OS 26.1 (23B85)","roots_installed":0,"incident_id":"A5AC61D1-4E4A-48F6-8E4B-253A858D2FBC"}
+{
+  "product" : "iPhone12,1",
+  "build" : "iPhone OS 26.1 (23B85)",
+  "incident" : "A5AC61D1-4E4A-48F6-8E4B-253A858D2FBC",
+  "date" : "2026-01-15 07:28:50.28 -0800",
+  "panicString" : "panic(cpu 1 caller 0xfffffff0235500c4): userspace watchdog timeout: no successful checkins from thermalmonitord (2 induced crashes) in 180 seconds\\nservice returned not alive with context : is_alive_func returned unhealthy : current 3bfffffffffff, mask 1ffffffffffff, expected 1ffffffffffff. SD: 1 BC: 1 RC: -1 BS: 1, Missing sensor(s): mic2 \\nDebugger message: panic"
+}`;
+  } else {
+    document.getElementById('snippetInput').value = 'Missing sensor(s): mic2';
+  }
+}
+
+function escapeHtml(str){
+  return str.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+// ---------- Conversor manual ----------
+function fromHex(){
+  const v = document.getElementById('hexIn').value.trim();
+  if(!v){ return; }
+  try{
+    const clean = v.replace(/^0x/i,'');
+    const dec = BigInt('0x'+clean);
+    document.getElementById('decIn').value = dec.toString(10);
+    document.getElementById('binIn').value = dec.toString(2);
+    const {ascii} = hexParaDecASCII(clean);
+    document.getElementById('asciiOut').value = ascii || '—';
+  }catch(e){}
+}
+function fromDec(){
+  const v = document.getElementById('decIn').value.trim();
+  if(!v || isNaN(v)){ return; }
+  const dec = BigInt(v);
+  document.getElementById('hexIn').value = '0x' + dec.toString(16);
+  document.getElementById('binIn').value = dec.toString(2);
+  const {ascii} = hexParaDecASCII(dec.toString(16));
+  document.getElementById('asciiOut').value = ascii || '—';
+}
+function fromBin(){
+  const v = document.getElementById('binIn').value.trim();
+  if(!v || !/^[01]+$/.test(v)){ return; }
+  const dec = BigInt('0b'+v);
+  document.getElementById('hexIn').value = '0x' + dec.toString(16);
+  document.getElementById('decIn').value = dec.toString(10);
+  const {ascii} = hexParaDecASCII(dec.toString(16));
+  document.getElementById('asciiOut').value = ascii || '—';
+}
+
+// carrega a base assim que a página abre (agora sim, depois de tudo declarado)
+carregarBaseRemota();
+</script>
+</body>
+</html>
