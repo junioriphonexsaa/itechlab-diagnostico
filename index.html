@@ -960,9 +960,9 @@ async function analisar(){
   } else if(match){
     html += `<div class="verdict">
       <span class="tag">${t('tagExemploLocal')}</span>
-      <h3>${match.nome}</h3>
-      <p><span class="label">${t('labelCausa')}</span>${match.causa}</p>
-      <p class="solucao"><span class="label">${t('labelSolucao')}</span>${match.solucao}</p>
+      <h3>${escapeHtml(match.nome)}</h3>
+      <p><span class="label">${t('labelCausa')}</span>${escapeHtml(match.causa)}</p>
+      <p class="solucao"><span class="label">${t('labelSolucao')}</span>${escapeHtml(match.solucao)}</p>
     </div>`;
   } else {
     html += `<div class="verdict unknown">

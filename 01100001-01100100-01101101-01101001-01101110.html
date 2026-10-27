@@ -216,14 +216,14 @@ async function carregarCasos(){
     const tbody = document.getElementById('tabelaCasos');
     tbody.innerHTML = casos.map(c => `
       <tr>
-        <td><span class="tipo-tag">${c.tipo}</span></td>
+        <td><span class="tipo-tag">${escapeHtml(c.tipo)}</span></td>
         <td>${escapeHtml(c.padrao || '')}</td>
         <td>${escapeHtml(c.modelo || '—')}</td>
         <td>${escapeHtml(c.componente || '')}</td>
         <td>${escapeHtml((c.solucao || '').slice(0,80))}</td>
         <td class="acoes">
-          <button class="edit-btn" onclick="editarCaso(${c.id})">Editar</button>
-          <button class="del-btn" onclick="apagarCaso(${c.id})">Apagar</button>
+          <button class="edit-btn" onclick="editarCaso(${Number(c.id)})">Editar</button>
+          <button class="del-btn" onclick="apagarCaso(${Number(c.id)})">Apagar</button>
         </td>
       </tr>
     `).join('');
