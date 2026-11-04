@@ -3,1056 +3,586 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>iTechLab — Diagnóstico de Panic Log</title>
+<title>iTechLab — Assistência Especializada em iPhone em Porto Alegre</title>
+<meta name="description" content="iTechLab: assistência especializada em iPhone em Porto Alegre/RS. Telas, baterias, vidros traseiros, câmeras e reparo de placa com garantia e orçamento direto no WhatsApp.">
+<meta name="theme-color" content="#0F172A">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg: #0d1117;
-    --panel: #141b22;
-    --panel-2: #182029;
-    --line: #263140;
-    --text: #dbe4ec;
-    --muted: #7c8b9b;
-    --accent: #e2222e;
-    --accent-dim: #5c1015;
-    --warn: #e0a23d;
-    --danger: #ff5a5a;
-    --mono: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-    --sans: 'IBM Plex Sans', -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --primary:#E2222E;
+    --primary-2:#C81521;
+    --primary-soft:#FDECEE;
+    --primary-line:#F8C9CD;
+    --dark:#0F172A;
+    --darker:#0B1120;
+    --text:#0F172A;
+    --muted:#64748B;
+    --muted-2:#94A3B8;
+    --border:#E2E8F0;
+    --soft:#F8FAFC;
+    --white:#FFFFFF;
+    --wa:#25D366;
+    --wa-2:#1EBE5D;
+    --gold:#F59E0B;
+    --heading:'Poppins',-apple-system,'Segoe UI',Roboto,sans-serif;
+    --body:'Inter',-apple-system,'Segoe UI',Roboto,sans-serif;
   }
-  *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;}
-  body{
-    background:
-      radial-gradient(circle at 1px 1px, rgba(226,34,46,0.05) 1px, transparent 0) 0 0/22px 22px,
-      var(--bg);
-    color:var(--text);
-    font-family:var(--sans);
-    min-height:100vh;
-    line-height:1.5;
-  }
-  .wrap{max-width:1080px;margin:0 auto;padding:28px 18px 60px;}
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  html,body{margin:0;padding:0}
+  body{font-family:var(--body);color:var(--text);background:var(--white);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  a{color:inherit;text-decoration:none}
+  .container{max-width:1160px;margin:0 auto;padding:0 20px}
+  .ico{width:20px;height:20px;flex:none}
 
-  header{
-    display:flex;
-    align-items:baseline;
-    justify-content:space-between;
-    gap:16px;
-    padding-bottom:20px;
-    border-bottom:1px solid var(--line);
-    margin-bottom:28px;
-    flex-wrap:wrap;
-  }
-  header .brand{display:flex;align-items:baseline;gap:10px;}
-  header h1{
-    font-size:1.3rem;
-    font-weight:600;
-    margin:0;
-    letter-spacing:0.2px;
-  }
-  header h1 .dot{color:var(--accent);}
-  header p{margin:0;color:var(--muted);font-size:0.85rem;}
-  .status-pill{
-    font-family:var(--mono);
-    font-size:0.72rem;
-    color:var(--accent);
-    background:rgba(226,34,46,0.10);
-    border:1px solid var(--accent-dim);
-    border-radius:20px;
-    padding:4px 12px;
-    white-space:nowrap;
+  /* Topbar */
+  .topbar{background:var(--dark);color:#E2E8F0;font-size:13px;font-weight:500;text-align:center;padding:9px 12px}
+  .topbar .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#22C55E;margin-right:8px;vertical-align:middle;animation:blink 1.6s infinite}
+  .topbar .dot.off{background:var(--muted-2);animation:none}
+  .topbar strong{color:#FF6B74;font-weight:600}
+  @keyframes blink{50%{opacity:.35}}
+
+  /* Header */
+  .header{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+  .header .container{display:flex;align-items:center;justify-content:space-between;height:70px;gap:12px}
+  .logo{display:flex;flex-direction:column;line-height:1}
+  .logo b{font-family:var(--heading);font-weight:900;font-size:24px;letter-spacing:-.5px;color:var(--dark)}
+  .logo b span{color:var(--primary)}
+  .logo small{font-size:8.5px;letter-spacing:2.4px;text-transform:uppercase;color:var(--muted);font-weight:700;margin-top:3px}
+  .header-right{display:flex;align-items:center;gap:20px}
+  .header-phone{font-family:var(--heading);font-weight:600;font-size:15px;display:flex;align-items:center;gap:6px}
+  .btn-header{display:inline-flex;align-items:center;gap:8px;background:var(--dark);color:#fff;font-family:var(--heading);font-weight:600;font-size:14px;padding:11px 20px;border-radius:999px;transition:transform .15s}
+  .btn-header:hover{transform:translateY(-1px)}
+  @media(max-width:640px){.header-phone{display:none}.btn-header{padding:10px 15px;font-size:13px}}
+
+  /* Buttons */
+  .btn-wa{display:inline-flex;align-items:center;justify-content:center;gap:12px;background:linear-gradient(180deg,var(--wa),var(--wa-2));color:#fff;font-family:var(--heading);font-weight:700;font-size:16px;text-transform:uppercase;letter-spacing:.3px;padding:18px 34px;border-radius:14px;box-shadow:0 14px 30px -10px rgba(37,211,102,.6);transition:transform .15s,box-shadow .2s;border:0;cursor:pointer}
+  .btn-wa:hover{transform:translateY(-2px);box-shadow:0 18px 36px -10px rgba(37,211,102,.75)}
+  .btn-wa .ico{width:24px;height:24px}
+
+  /* Hero */
+  .hero{position:relative;padding:48px 0 70px;background:
+      radial-gradient(ellipse at 50% -10%,rgba(226,34,46,.08),transparent 60%),
+      linear-gradient(180deg,#FFFFFF 0%,#FFF7F7 55%,#F8FAFC 100%)}
+  .hero .container{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center}
+  .rating{display:inline-flex;align-items:center;gap:8px;background:#FFF7ED;border:1px solid #FED7AA;padding:7px 14px;border-radius:999px;font-size:13px;font-weight:600;color:#7C2D12;margin-bottom:18px}
+  .rating .stars{color:var(--gold);letter-spacing:1px}
+  .hero h1{font-family:var(--heading);font-weight:800;font-size:clamp(40px,5.8vw,64px);line-height:1.05;letter-spacing:-2px;margin:0 0 20px;color:var(--dark)}
+  .hero h1 span{display:block;color:var(--primary)}
+  .hero p.lead{font-size:18px;color:var(--muted);max-width:520px;margin:0 0 28px}
+  .badges{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+  .badge{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.85);border:1px solid var(--border);padding:9px 13px;border-radius:12px;font-size:13px;font-weight:600;line-height:1.25;box-shadow:0 4px 12px -8px rgba(15,23,42,.25)}
+  .badge .bi{font-size:16px}
+
+  .hero-visual{position:relative;display:flex;justify-content:center;align-items:center;min-height:470px}
+  .glow{position:absolute;width:360px;height:360px;border-radius:50%;background:radial-gradient(circle,rgba(226,34,46,.22),transparent 65%);filter:blur(10px)}
+  .phone{position:relative;width:240px;height:490px;border-radius:48px;padding:10px;background:linear-gradient(150deg,#C7CBD1 0%,#6B7280 18%,#2A2E35 50%,#9CA3AF 85%,#E5E7EB 100%);box-shadow:0 50px 80px -30px rgba(15,23,42,.55);transform:perspective(900px) rotateY(-14deg) rotateZ(4deg)}
+  .phone::before{content:"";position:absolute;left:-3px;top:110px;width:3px;height:44px;border-radius:2px;background:#6B7280;box-shadow:0 60px 0 #6B7280}
+  .screen{position:relative;height:100%;border-radius:40px;overflow:hidden;background:#000}
+  .wall{position:absolute;inset:0;background:
+      radial-gradient(70% 45% at 25% 18%,#FF5A64 0%,transparent 70%),
+      radial-gradient(80% 55% at 80% 85%,#7F1D1D 0%,transparent 70%),
+      linear-gradient(180deg,#B91C1C 0%,#450A0A 60%,#0B1120 100%)}
+  .island{position:absolute;top:12px;left:50%;transform:translateX(-50%);width:86px;height:25px;border-radius:20px;background:#000;z-index:3}
+  .time{position:absolute;top:66px;width:100%;text-align:center;color:#fff;z-index:2}
+  .time small{display:block;font-size:13px;font-weight:600;opacity:.9;white-space:nowrap;text-transform:capitalize}
+  .time b{font-family:var(--heading);font-size:62px;font-weight:600;letter-spacing:-1px;line-height:1}
+  .crack{position:absolute;inset:0;z-index:2;pointer-events:none}
+  .fc{position:absolute;z-index:4;display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--border);border-radius:14px;padding:10px 14px;box-shadow:0 18px 36px -16px rgba(15,23,42,.35);font-size:12px;line-height:1.3;animation:float 5s ease-in-out infinite}
+  .fc b{display:block;font-family:var(--heading);font-size:13px;font-weight:600}
+  .fc small{color:var(--muted)}
+  .fc .fi{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:var(--primary-soft);font-size:16px}
+  .fc1{top:34px;left:2%}
+  .fc2{bottom:56px;right:0;animation-delay:-2.5s}
+  @keyframes float{50%{transform:translateY(-9px)}}
+
+  @media(max-width:900px){
+    .hero{padding:32px 0 52px}
+    .hero .container{grid-template-columns:1fr;gap:10px}
+    .hero-visual{order:-1;min-height:360px}
+    .phone{width:180px;height:368px;border-radius:38px;padding:8px}
+    .screen{border-radius:31px}
+    .time{top:54px}.time b{font-size:46px}
+    .island{width:64px;height:19px}
+    .glow{width:280px;height:280px}
+    .hero-text{text-align:center}
+    .hero p.lead{margin-left:auto;margin-right:auto}
+    .badges{justify-content:center}
+    .btn-wa.hero-cta{width:100%}
   }
 
-  .grid{display:grid;grid-template-columns:1fr;gap:22px;}
-  @media(min-width:880px){
-    .grid{grid-template-columns: 1fr 1fr;align-items:start;}
+  /* Models bar */
+  .models{background:#fff;border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:22px 0}
+  .models h4{text-align:center;margin:0 0 14px;font-family:var(--heading);font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+  .chips{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
+  .chip{display:inline-flex;align-items:center;gap:6px;background:var(--soft);border:1px solid var(--border);border-radius:999px;padding:8px 16px;font-family:var(--heading);font-size:13px;font-weight:600}
+
+  /* Sections */
+  section.sec{padding:84px 0}
+  section.alt{background:var(--soft)}
+  .sec-head{text-align:center;max-width:680px;margin:0 auto 44px}
+  .eyebrow{display:inline-block;font-family:var(--heading);font-size:12px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;color:var(--primary);background:var(--primary-soft);border:1px solid var(--primary-line);padding:6px 14px;border-radius:999px;margin-bottom:14px}
+  .sec-head h2{font-family:var(--heading);font-weight:800;font-size:clamp(28px,3.8vw,40px);line-height:1.15;letter-spacing:-1px;margin:0 0 12px}
+  .sec-head p{color:var(--muted);margin:0;font-size:16px}
+  @media(max-width:640px){section.sec{padding:60px 0}}
+
+  /* Components grid */
+  .grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}
+  @media(max-width:1000px){.grid4{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @media(max-width:540px){.grid4{grid-template-columns:1fr}}
+  .card{display:flex;flex-direction:column;background:#fff;border:1px solid var(--border);border-radius:18px;padding:22px;transition:transform .2s,box-shadow .2s,border-color .2s}
+  .card:hover{transform:translateY(-4px);box-shadow:0 22px 40px -22px rgba(15,23,42,.3);border-color:var(--primary-line)}
+  .card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+  .card-ico{width:48px;height:48px;border-radius:14px;background:var(--primary-soft);display:grid;place-items:center;font-size:22px}
+  .pill{font-size:11px;font-weight:700;color:var(--primary);background:var(--primary-soft);padding:5px 10px;border-radius:999px;text-transform:uppercase;letter-spacing:.5px}
+  .card h3{font-family:var(--heading);font-size:18px;font-weight:700;margin:0 0 8px}
+  .card p{color:var(--muted);font-size:14px;margin:0 0 18px;flex:1}
+  .card-foot{display:flex;align-items:center;justify-content:space-between;padding-top:14px;border-top:1px solid var(--border);font-family:var(--heading);font-size:13px;font-weight:600;color:var(--wa-2)}
+  .card-foot .arr{width:28px;height:28px;border-radius:50%;background:#ECFDF5;display:grid;place-items:center;transition:transform .2s}
+  .card:hover .arr{transform:translateX(3px)}
+
+  /* Quote */
+  .quote{max-width:820px;margin:0 auto;background:#fff;border:1px solid var(--border);border-radius:24px;padding:36px;box-shadow:0 30px 60px -40px rgba(15,23,42,.35)}
+  @media(max-width:640px){.quote{padding:24px 18px}}
+  .q-step{margin-bottom:26px}
+  .q-label{display:flex;align-items:center;gap:10px;font-family:var(--heading);font-weight:600;font-size:16px;margin-bottom:12px}
+  .step-num{width:24px;height:24px;border-radius:50%;background:var(--primary);color:#fff;font-size:12px;display:grid;place-items:center;flex:none}
+  .opts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+  .opts.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+  @media(max-width:640px){.opts,.opts.three{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  .opt{background:var(--soft);border:1.5px solid var(--border);border-radius:12px;padding:13px 10px;font-family:var(--heading);font-weight:600;font-size:14px;color:var(--text);cursor:pointer;transition:all .15s}
+  .opt:hover{border-color:var(--primary-line)}
+  .opt.on{background:var(--primary-soft);border-color:var(--primary);color:var(--primary-2)}
+  select{width:100%;background:var(--soft);border:1.5px solid var(--border);border-radius:12px;padding:14px;font-family:var(--body);font-size:15px;color:var(--text);appearance:none;background-image:linear-gradient(45deg,transparent 50%,#64748B 50%),linear-gradient(135deg,#64748B 50%,transparent 50%);background-position:calc(100% - 22px) 55%,calc(100% - 16px) 55%;background-size:6px 6px;background-repeat:no-repeat}
+  select:disabled{opacity:.55}
+  .opt:focus-visible,select:focus-visible,.btn-wa:focus-visible,a:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+  .quote .btn-wa{width:100%}
+  .quote .btn-wa[aria-disabled="true"]{filter:grayscale(.85);opacity:.55;pointer-events:none}
+  .q-hint{text-align:center;color:var(--muted);font-size:13px;margin-top:12px}
+
+  /* Why */
+  .grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+  @media(max-width:900px){.grid3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @media(max-width:560px){.grid3{grid-template-columns:1fr}}
+  .why{background:#fff;border:1px solid var(--border);border-radius:18px;padding:26px}
+  .why .card-ico{margin-bottom:16px}
+  .why h3{font-family:var(--heading);font-size:17px;font-weight:700;margin:0 0 8px}
+  .why p{margin:0;color:var(--muted);font-size:14px}
+  .why a{display:inline-block;margin-top:12px;color:var(--primary);font-weight:600;font-size:14px}
+
+  /* Reviews */
+  .score{display:inline-flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--border);border-radius:999px;padding:10px 20px;margin-top:18px;font-size:14px;color:var(--muted)}
+  .score b{font-family:var(--heading);font-size:22px;color:var(--text)}
+  .score .stars{color:var(--gold)}
+  .review{background:#fff;border:1px solid var(--border);border-radius:18px;padding:24px}
+  .r-head{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+  .avatar{width:44px;height:44px;border-radius:50%;background:var(--primary);color:#fff;display:grid;place-items:center;font-family:var(--heading);font-weight:700;font-size:15px}
+  .r-head b{display:block;font-family:var(--heading);font-size:15px}
+  .r-head small{color:var(--muted);font-size:12px}
+  .review .stars{color:var(--gold);letter-spacing:1px;margin-bottom:8px}
+  .review p{margin:0;color:#334155;font-size:14.5px;font-style:italic}
+
+  /* Store */
+  .store{display:grid;grid-template-columns:1fr 1.2fr;gap:22px}
+  @media(max-width:900px){.store{grid-template-columns:1fr}}
+  .info{display:grid;gap:14px}
+  .info-item{display:flex;gap:14px;background:#fff;border:1px solid var(--border);border-radius:18px;padding:20px}
+  .info-item .card-ico{flex:none}
+  .info-item h3{font-family:var(--heading);margin:0 0 4px;font-size:16px}
+  .info-item p{margin:0;color:var(--muted);font-size:14px}
+  .info-item .wa-link{display:inline-flex;align-items:center;gap:6px;margin-top:10px;background:var(--wa);color:#fff;font-family:var(--heading);font-weight:600;font-size:13px;padding:9px 14px;border-radius:10px}
+  .map{border-radius:18px;overflow:hidden;border:1px solid var(--border);min-height:360px;background:var(--soft)}
+  .map iframe{width:100%;height:100%;min-height:360px;border:0;display:block}
+
+  /* Final CTA */
+  .final{position:relative;background:var(--dark);color:#fff;text-align:center;padding:90px 0;overflow:hidden}
+  .final::before{content:"";position:absolute;inset:0;background:radial-gradient(600px 280px at 50% 0%,rgba(226,34,46,.35),transparent 70%)}
+  .final .container{position:relative}
+  .final h2{font-family:var(--heading);font-weight:800;font-size:clamp(28px,4.4vw,44px);letter-spacing:-1px;line-height:1.12;margin:0 0 14px}
+  .final p{color:var(--muted-2);margin:0 auto 30px;max-width:540px;font-size:17px}
+
+  /* Footer */
+  footer{background:var(--darker);color:var(--muted-2);font-size:13px;padding:52px 0 110px}
+  .foot{display:grid;grid-template-columns:1.6fr 1fr;gap:30px;padding-bottom:28px;border-bottom:1px solid #1E293B}
+  @media(max-width:760px){.foot{grid-template-columns:1fr}}
+  footer h4{font-family:var(--heading);color:#fff;margin:0 0 10px;font-size:16px}
+  footer p{margin:0 0 6px}
+  footer b{color:#CBD5E1}
+  .legal{padding-top:22px;font-size:12px;line-height:1.65}
+  .legal p{margin:0 0 12px}
+  @media(min-width:761px){footer{padding-bottom:50px}}
+
+  /* Floating / mobile bar */
+  .wa-float{position:fixed;right:22px;bottom:24px;z-index:60;width:60px;height:60px;border-radius:50%;background:var(--wa);display:grid;place-items:center;box-shadow:0 14px 30px -8px rgba(37,211,102,.7)}
+  .wa-float::after{content:"";position:absolute;inset:0;border-radius:50%;border:2px solid var(--wa);animation:ring 2s infinite}
+  .wa-float .ico{width:30px;height:30px}
+  @keyframes ring{from{transform:scale(1);opacity:.8}to{transform:scale(1.5);opacity:0}}
+  .mbar{display:none}
+  @media(max-width:760px){
+    .wa-float{display:none}
+    .mbar{display:grid;grid-template-columns:1fr 1.6fr;gap:10px;position:fixed;left:0;right:0;bottom:0;z-index:60;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:rgba(255,255,255,.96);backdrop-filter:blur(10px);border-top:1px solid var(--border)}
+    .mbar a{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border-radius:12px;font-family:var(--heading);font-weight:600;font-size:15px}
+    .mbar .call{background:var(--dark);color:#fff}
+    .mbar .wa{background:var(--wa);color:#fff}
   }
 
-  .card{
-    background:var(--panel);
-    border:1px solid var(--line);
-    border-radius:10px;
-    padding:20px;
-  }
-  .card h2{
-    font-size:0.78rem;
-    text-transform:uppercase;
-    letter-spacing:1px;
-    color:var(--muted);
-    margin:0 0 14px 0;
-    font-weight:600;
-  }
-
-  textarea{
-    width:100%;
-    min-height:260px;
-    background:var(--panel-2);
-    border:1px solid var(--line);
-    border-radius:8px;
-    color:var(--text);
-    font-family:var(--mono);
-    font-size:0.82rem;
-    padding:14px;
-    resize:vertical;
-  }
-  textarea:focus, input:focus, button:focus-visible{
-    outline:2px solid var(--accent);
-    outline-offset:1px;
-  }
-  textarea::placeholder{color:#4b5866;}
-
-  .tabs{display:flex;gap:8px;margin-bottom:14px;}
-  .tab-btn{
-    font-family:var(--sans);
-    font-size:0.78rem;
-    font-weight:600;
-    background:transparent;
-    color:var(--muted);
-    border:1px solid var(--line);
-    border-radius:7px;
-    padding:8px 14px;
-    cursor:pointer;
-  }
-  .tab-btn.active{color:#ffffff;background:var(--accent);border-color:var(--accent);}
-  .snippet-input{
-    width:100%;
-    background:var(--panel-2);
-    border:1px solid var(--line);
-    border-radius:8px;
-    color:var(--text);
-    font-family:var(--mono);
-    font-size:0.9rem;
-    padding:12px 14px;
-  }
-  .hint{color:var(--muted);font-size:0.78rem;margin:8px 0 0;}
-
-  .row{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;}
-  button{
-    font-family:var(--sans);
-    font-weight:600;
-    font-size:0.85rem;
-    border-radius:7px;
-    padding:10px 18px;
-    border:1px solid transparent;
-    cursor:pointer;
-    transition:transform .08s ease, background .15s ease;
-  }
-  button:active{transform:scale(0.98);}
-  .btn-primary{background:var(--accent);color:#ffffff;}
-  .btn-primary:hover{background:#ff4550;}
-  .btn-ghost{background:transparent;border-color:var(--line);color:var(--text);}
-  .btn-ghost:hover{border-color:var(--accent-dim);}
-
-  .field-list{display:flex;flex-direction:column;gap:10px;font-family:var(--mono);font-size:0.82rem;}
-  .field{display:grid;grid-template-columns:130px 1fr;gap:10px;border-bottom:1px dashed var(--line);padding-bottom:8px;}
-  .field .k{color:var(--muted);}
-  .field .v{color:var(--text);word-break:break-all;}
-
-  .hex-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:0.8rem;margin-top:4px;}
-  .hex-table th{text-align:left;color:var(--muted);font-weight:500;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.5px;padding:6px 8px;border-bottom:1px solid var(--line);}
-  .hex-table td{padding:6px 8px;border-bottom:1px solid var(--line);}
-  .hex-table tr:last-child td{border-bottom:none;}
-
-  .verdict{
-    border-radius:8px;
-    padding:16px;
-    margin-top:16px;
-    border:1px solid var(--accent-dim);
-    background:linear-gradient(180deg, rgba(226,34,46,0.08), rgba(226,34,46,0.02));
-  }
-  .verdict.unknown{
-    border-color:#3a4552;
-    background:rgba(255,255,255,0.02);
-  }
-  .verdict .tag{
-    display:inline-block;
-    font-family:var(--mono);
-    font-size:0.68rem;
-    color:var(--accent);
-    background:rgba(226,34,46,0.14);
-    padding:2px 8px;
-    border-radius:4px;
-    margin-bottom:8px;
-  }
-  .verdict.unknown .tag{color:var(--warn);background:rgba(224,162,61,0.12);}
-  .verdict h3{margin:0 0 6px;font-size:1rem;}
-  .verdict p{margin:0 0 6px;color:#c3ccd6;font-size:0.88rem;}
-  .verdict p.solucao{color:var(--text);}
-  .verdict p .label{color:var(--muted);font-size:0.78rem;display:block;margin-bottom:2px;}
-
-  .empty{color:var(--muted);font-size:0.85rem;font-style:italic;}
-
-  .conv-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
-  .conv-row input{
-    flex:1;
-    min-width:110px;
-    background:var(--panel-2);
-    border:1px solid var(--line);
-    border-radius:7px;
-    color:var(--text);
-    font-family:var(--mono);
-    font-size:0.85rem;
-    padding:9px 12px;
-  }
-  .conv-label{font-size:0.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:5px;}
-  .conv-col{flex:1;min-width:140px;}
-
-  .lang-opt{
-    display:flex;align-items:center;gap:8px;width:100%;text-align:left;background:transparent;border:none;
-    color:var(--text);font-family:var(--sans);font-size:0.82rem;padding:8px 10px;
-    border-radius:6px;cursor:pointer;
-  }
-  .lang-opt:hover{background:var(--panel-2);}
-  [dir="rtl"] .lang-opt{text-align:right;}
-  .flag-icon{width:20px;height:15px;object-fit:cover;border-radius:2px;vertical-align:middle;box-shadow:0 0 0 1px rgba(255,255,255,0.1);}
-  footer{margin-top:30px;color:var(--muted);font-size:0.78rem;text-align:center;}
-  footer a{color:var(--accent);text-decoration:none;}
+  .reveal{opacity:0;transform:translateY(20px);transition:opacity .6s ease,transform .6s ease}
+  .reveal.in{opacity:1;transform:none}
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.reveal{opacity:1;transform:none}}
+  .hidden{display:none!important}
 </style>
 </head>
 <body>
-<div class="wrap">
 
-  <header>
-    <div class="brand" style="display:flex;align-items:center;gap:14px;">
-      <img src="data:image/jpeg;base64,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+Y5weakh8W6vD4Bl8Hh4W0t7k3mxo/nWQhASG9xGn5cYyawqSmSdDq3jfxJrnhaw8OapqBn03TwgtICigQhU2cEDPI65780+48d+KLzxu3iy+1N7vU23qz3CiRDG6srRbGyvllXZSmMYYjFc3RQB1dv8RvFll4vfxLp+opZ6gbYWcb28CIkMKhVWONMbVUBQOB65zk03R/iL4v8AD+palf6Lq8ljPqU4nunhAHmNlzjp0zI3H09BXLUUAdVpfxD8U6Nb6pBp19FDFqsjyX8f2eNhc70dGVsj7u2WQBRgDeTUNr478T2Xgm68JW+pFdHuoTBNalFKsvnLNnJGQ29B8w5xkZwSK5uigDa1HxPqWq+H7HSb5LOVLJRHDc/ZkFx5YB2xmUDcUXccAnjgdAMSeK/F+seM9XTVNcaCS7WJYjLFEE3gdMgcflisGigA7UUUUAFFFFAB1ooooAKKKKACiiigAooooAKKKKACjtRRQAUUUUAFHWiigAooooAKKXrSUAFFFFAB2ooooAKKKKACiiigAooooAKKKKACiiigAooooAWkoooAKKKKACiiigAooooAKOPSlpKACiiigAooooAKKO1FABRRRQAUUUUAH40UUUAHNFFHagAopaTGaADtRmiigAoo7UUAFFFGKACiiigAooo+lABRRRQAUUUc0AFFFFAB3ooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooo7UAFHPeiigA5ooooAKKKKADtR3oooAWkoooAKKKKACgdaKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACjtRRQAtJRRQAUUUUAFFFFABRRRQAUUUUAf/2Q==" alt="iTechLab" style="width:54px;height:54px;border-radius:12px;object-fit:cover;border:1px solid var(--line);flex-shrink:0;">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="wa" viewBox="0 0 24 24"><path fill="currentColor" d="M17.47 14.38c-.3-.15-1.75-.86-2.02-.96-.27-.1-.47-.15-.67.15-.2.3-.77.96-.94 1.16-.17.2-.35.22-.64.07-.3-.15-1.25-.46-2.38-1.47-.88-.78-1.48-1.75-1.65-2.05-.17-.3-.02-.46.13-.6.13-.14.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.03-.52-.07-.15-.67-1.6-.92-2.2-.24-.58-.49-.5-.67-.5h-.57c-.2 0-.52.07-.8.37-.27.3-1.04 1.02-1.04 2.48 0 1.46 1.07 2.88 1.21 3.07.15.2 2.1 3.2 5.08 4.49.71.3 1.27.49 1.7.63.71.23 1.36.2 1.87.12.57-.08 1.75-.71 2-1.4.25-.7.25-1.29.17-1.41-.07-.12-.27-.2-.57-.35M12.05 21.5h-.01a9.4 9.4 0 0 1-4.8-1.31l-.34-.2-3.56.93.95-3.47-.22-.36a9.4 9.4 0 0 1-1.44-5.01c0-5.2 4.23-9.43 9.44-9.43a9.37 9.37 0 0 1 9.42 9.44c0 5.2-4.23 9.42-9.44 9.42m8.03-17.45A11.27 11.27 0 0 0 12.05.72C5.8.72.7 5.8.7 12.06c0 2 .52 3.95 1.52 5.67L.6 23.6l6.02-1.58a11.33 11.33 0 0 0 5.42 1.38h.01c6.25 0 11.34-5.09 11.35-11.35a11.28 11.28 0 0 0-3.32-8.02"/></symbol>
+</svg>
+
+<!-- Topbar -->
+<div class="topbar"><span class="dot" id="dot"></span><span id="status">Atendimento Online</span> · <strong id="now">—</strong></div>
+
+<!-- Header -->
+<header class="header">
+  <div class="container">
+    <a href="#" class="logo" aria-label="iTechLab — início"><b>ITECH<span>LAB</span></b><small>Especialista em iPhone</small></a>
+    <div class="header-right">
+      <a class="header-phone" data-tel href="#">📞 <span data-phone>—</span></a>
+      <a class="btn-header" data-wa="Olá, iTechLab! Gostaria de consultar valores para o meu iPhone." href="#" target="_blank" rel="noopener"><svg class="ico" style="color:#25D366"><use href="#wa"/></svg>Consultar Valores</a>
+    </div>
+  </div>
+</header>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-text">
+      <div class="rating hidden" id="heroRating"><span class="stars">★★★★★</span><span id="heroRatingText"></span></div>
+      <h1>Seu iPhone<span>como novo.</span></h1>
+      <p class="lead">Laboratório próprio e técnicos especialistas em iPhone em Porto Alegre. Mais de 8 anos em reparo avançado, diagnóstico grátis, garantia por escrito e orçamento direto no WhatsApp.</p>
+      <a class="btn-wa hero-cta" data-wa="Olá, iTechLab! Vim pelo site e gostaria de um orçamento para o meu iPhone." href="#" target="_blank" rel="noopener"><svg class="ico"><use href="#wa"/></svg>Consultar no WhatsApp</a>
+      <div class="badges">
+        <div class="badge"><span class="bi">📱</span>Peças em<br>estoque</div>
+        <div class="badge"><span class="bi">🛡️</span><span data-warranty-short>Garantia<br>por escrito</span></div>
+        <div class="badge"><span class="bi">🔍</span>Diagnóstico<br>grátis</div>
+        <div class="badge"><span class="bi">🛵</span><span data-installments>Coleta e entrega<br>grátis em POA</span></div>
+      </div>
+    </div>
+
+    <div class="hero-visual" aria-hidden="true">
+      <div class="glow"></div>
+      <div class="phone">
+        <div class="screen">
+          <div class="wall"></div>
+          <div class="island"></div>
+          <div class="time"><small id="pDate">quarta-feira, 4 de novembro</small><b id="pTime">9:41</b></div>
+          <svg class="crack" viewBox="0 0 220 470" preserveAspectRatio="none">
+            <g fill="none" stroke="rgba(255,255,255,.75)" stroke-width="1.1" stroke-linecap="round">
+              <path d="M150 300 L118 262 L96 214 L70 190 L30 176 L0 180"/>
+              <path d="M150 300 L190 270 L220 262"/>
+              <path d="M150 300 L172 352 L168 410 L184 470"/>
+              <path d="M150 300 L118 340 L84 360 L40 408 L22 470"/>
+              <path d="M150 300 L200 326 L220 340"/>
+              <path d="M118 262 L140 232 L150 196"/>
+              <path d="M118 340 L126 392 L110 440"/>
+              <path d="M96 214 L60 230 L24 248"/>
+            </g>
+            <circle cx="150" cy="300" r="7" fill="rgba(255,255,255,.35)"/>
+          </svg>
+        </div>
+      </div>
+      <div class="fc fc1"><div class="fi">💎</div><div><b>Telas selecionadas</b><small>Cor, brilho e toque fiéis</small></div></div>
+      <div class="fc fc2"><div class="fi">🔋</div><div><b>Bateria nova</b><small>Saúde 100%</small></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- Models -->
+<div class="models">
+  <div class="container">
+    <h4>Atendemos toda a linha iPhone</h4>
+    <div class="chips" id="chips"></div>
+  </div>
+</div>
+
+<!-- Components -->
+<section class="sec alt" id="servicos">
+  <div class="container">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Serviços e Peças</span>
+      <h2>Tudo para o seu iPhone em um só lugar</h2>
+      <p>Toque no serviço e consulte valor e disponibilidade para o seu modelo no WhatsApp:</p>
+    </div>
+    <div class="grid4" id="cards"></div>
+  </div>
+</section>
+
+<!-- Quote -->
+<section class="sec" id="orcamento">
+  <div class="container">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Orçamento Rápido</span>
+      <h2>Consulte o valor para o seu iPhone</h2>
+      <p>Selecione as opções e receba valor e prazo direto no WhatsApp:</p>
+    </div>
+    <div class="quote reveal">
+      <div class="q-step">
+        <div class="q-label"><span class="step-num">1</span>Qual a linha do seu iPhone?</div>
+        <div class="opts" id="genOpts" role="group" aria-label="Linha do iPhone"></div>
+      </div>
+      <div class="q-step">
+        <div class="q-label"><span class="step-num">2</span>Qual o modelo exato?</div>
+        <select id="modelSel" disabled aria-label="Modelo do iPhone"><option>Selecione a linha primeiro</option></select>
+      </div>
+      <div class="q-step">
+        <div class="q-label"><span class="step-num">3</span>Qual serviço você precisa?</div>
+        <div class="opts three" id="svcOpts" role="group" aria-label="Serviço"></div>
+      </div>
+      <a class="btn-wa" id="quoteBtn" aria-disabled="true" href="#" target="_blank" rel="noopener"><svg class="ico"><use href="#wa"/></svg>Ver valor no WhatsApp</a>
+      <div class="q-hint" id="qHint">Selecione o modelo e o serviço para continuar</div>
+    </div>
+  </div>
+</section>
+
+<!-- Why -->
+<section class="sec alt" id="porque">
+  <div class="container">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Por que a iTechLab</span>
+      <h2>Quem só mexe com iPhone conhece cada detalhe</h2>
+      <p>Foco total em um único aparelho: mais precisão, peça certa e menos retrabalho.</p>
+    </div>
+    <div class="grid3">
+      <div class="why reveal"><div class="card-ico">🍏</div><h3>Especialista em iPhone</h3><p>Mais de 8 anos de reparo avançado Apple, com microscópio, osciloscópio e laboratório próprio.</p></div>
+      <div class="why reveal"><div class="card-ico">🛡️</div><h3>Garantia por escrito</h3><p data-warranty-long>Todo serviço sai com garantia documentada para você ficar tranquilo com a peça instalada.</p></div>
+      <div class="why reveal"><div class="card-ico">🔬</div><h3>Diagnóstico por Panic Log</h3><p>Lemos o registro de falhas do próprio iOS para achar o componente com defeito, sem chute e sem troca desnecessária.</p><a href="diagnostico/">Conheça nossa ferramenta →</a></div>
+      <div class="why reveal"><div class="card-ico">💎</div><h3>Peças selecionadas</h3><p>Componentes de procedência testada, preservando cor, brilho, toque e funções como True Tone.</p></div>
+      <div class="why reveal"><div class="card-ico">🧩</div><h3>Reparo de placa</h3><p>Microsoldagem em nível de componente. Quando dizem que “não tem jeito”, a gente investiga.</p></div>
+      <div class="why reveal"><div class="card-ico">💬</div><h3>Atendimento direto no WhatsApp</h3><p>Fale com o técnico, sem robô. Coleta e entrega grátis em Porto Alegre/RS.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- Reviews: só aparece com avaliações REAIS em CONFIG.reviews -->
+<section class="sec hidden" id="depoimentos">
+  <div class="container">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Depoimentos Reais</span>
+      <h2>Quem confiou o iPhone à iTechLab</h2>
+      <div class="score hidden" id="score"><b id="scoreNum"></b><span class="stars">★★★★★</span><span id="scoreText"></span></div>
+    </div>
+    <div class="grid3" id="reviews"></div>
+  </div>
+</section>
+
+<!-- Store -->
+<section class="sec alt" id="loja">
+  <div class="container">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Nossa Loja</span>
+      <h2>Venha até a iTechLab</h2>
+      <p>Traga seu iPhone para uma avaliação sem compromisso.</p>
+    </div>
+    <div class="store">
+      <div class="info">
+        <div class="info-item reveal"><div class="card-ico">📍</div><div><h3>Endereço</h3><p data-address>—</p></div></div>
+        <div class="info-item reveal"><div class="card-ico">⏰</div><div><h3>Horário de Funcionamento</h3><p data-hours>—</p></div></div>
+        <div class="info-item reveal"><div class="card-ico">📞</div><div><h3>Telefone e WhatsApp</h3><p data-phone>—</p><a class="wa-link" data-wa="Olá, iTechLab! Estou indo até a loja. Podem me atender?" href="#" target="_blank" rel="noopener"><svg class="ico" style="width:16px;height:16px"><use href="#wa"/></svg>Avisar chegada no WhatsApp</a></div></div>
+      </div>
+      <div class="map reveal" id="map"></div>
+    </div>
+  </div>
+</section>
+
+<!-- Final CTA -->
+<section class="final">
+  <div class="container">
+    <h2>Seu iPhone em mãos de especialista.</h2>
+    <p>Fale com um técnico da iTechLab e consulte valores e prazos sem compromisso.</p>
+    <a class="btn-wa" data-wa="Olá, iTechLab! Quero uma avaliação sem compromisso para o meu iPhone." href="#" target="_blank" rel="noopener"><svg class="ico"><use href="#wa"/></svg>Falar no WhatsApp agora</a>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="container">
+    <div class="foot">
       <div>
-        <h1>ITECH<span class="dot">LAB</span></h1>
-        <p data-i18n="tagline" style="letter-spacing:1.5px;font-size:0.7rem;text-transform:uppercase;">Reparo · Precisão · Performance</p>
+        <h4>iTechLab</h4>
+        <p>Assistência técnica especializada em iPhone em Porto Alegre/RS.</p>
+        <p class="hidden" id="cnpjRow"><b>CNPJ:</b> <span id="cnpj"></span></p>
+        <p><b>Endereço:</b> <span data-address>—</span></p>
+      </div>
+      <div>
+        <h4>Atendimento</h4>
+        <p data-hours>—</p>
+        <p>WhatsApp: <span data-phone>—</span></p>
       </div>
     </div>
-    <div style="text-align:right;position:relative;">
-      <div style="position:relative;display:inline-block;margin-bottom:8px;">
-        <button class="btn-ghost" id="btnIdioma" onclick="toggleMenuIdioma()"><img class="flag-icon" id="idiomaAtualFlag" src="https://flagcdn.com/24x18/br.png" alt="idioma"> <span id="idiomaAtualLabel">PT-BR</span></button>
-        <div id="menuIdioma" style="display:none;position:absolute;right:0;top:110%;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:6px;z-index:20;min-width:210px;text-align:left;">
-          <button class="lang-opt" onclick="mudarIdioma('pt-BR')"><img class="flag-icon" src="https://flagcdn.com/24x18/br.png" srcset="https://flagcdn.com/48x36/br.png 2x" alt="br"> Português (Brasil)</button>
-          <button class="lang-opt" onclick="mudarIdioma('pt-PT')"><img class="flag-icon" src="https://flagcdn.com/24x18/pt.png" srcset="https://flagcdn.com/48x36/pt.png 2x" alt="pt"> Português (Portugal)</button>
-          <button class="lang-opt" onclick="mudarIdioma('en')"><img class="flag-icon" src="https://flagcdn.com/24x18/us.png" srcset="https://flagcdn.com/48x36/us.png 2x" alt="us"> English</button>
-          <button class="lang-opt" onclick="mudarIdioma('es')"><img class="flag-icon" src="https://flagcdn.com/24x18/es.png" srcset="https://flagcdn.com/48x36/es.png 2x" alt="es"> Español</button>
-          <button class="lang-opt" onclick="mudarIdioma('ar')"><img class="flag-icon" src="https://flagcdn.com/24x18/sa.png" srcset="https://flagcdn.com/48x36/sa.png 2x" alt="sa"> العربية</button>
-          <button class="lang-opt" onclick="mudarIdioma('hi')"><img class="flag-icon" src="https://flagcdn.com/24x18/in.png" srcset="https://flagcdn.com/48x36/in.png 2x" alt="in"> हिन्दी</button>
-        </div>
-      </div>
-      <div style="font-family:var(--mono);font-size:0.7rem;color:var(--muted);">
-        <span data-i18n="creditPrefix">sistema criado por</span> <span style="color:var(--accent);font-weight:600;">Junior Weirich</span>
-      </div>
-      <div style="text-align:right;display:none;" id="statusBox">
-        <span class="status-pill" id="statusPill">conectando &agrave; base online...</span>
-        <div id="statusDetail" style="font-family:var(--mono);font-size:0.68rem;color:var(--danger);margin-top:6px;max-width:320px;"></div>
-        <div style="font-family:var(--mono);font-size:0.62rem;color:#4b5866;margin-top:4px;">vers&atilde;o gerada: 2026-09-04 22:14 UTC</div>
-      </div>
-    </div>
-  </header>
-
-  <div class="grid">
-
-    <!-- INPUT -->
-    <div class="card">
-      <h2 data-i18n="h2Entrada">Entrada</h2>
-      <div class="tabs">
-        <button class="tab-btn active" id="tabFull" data-i18n="tabFull" onclick="setMode('full')">Log completo</button>
-        <button class="tab-btn" id="tabSnippet" data-i18n="tabSnippet" onclick="setMode('snippet')">Só o código encontrado</button>
-      </div>
-
-      <div id="modeFull">
-        <div class="row" style="margin:0 0 10px;">
-          <label class="btn-ghost" style="cursor:pointer;" for="fileInput" data-i18n="fileBtn">
-            📁 Escolher arquivo do explorador
-          </label>
-          <input type="file" id="fileInput" accept=".ips,.txt,.json,text/plain,application/json,application/octet-stream" style="display:none;" onchange="carregarArquivo(event)">
-          <span class="hint" id="fileName" style="align-self:center;margin:0;"></span>
-        </div>
-        <textarea id="logInput" data-i18n-placeholder="textareaPlaceholder" placeholder="Cole aqui o conteúdo do panic full log (.ips) exportado do iPhone, ou escolha o arquivo acima..."></textarea>
-      </div>
-
-      <div id="modeSnippet" style="display:none;">
-        <input type="text" class="snippet-input" id="snippetInput" data-i18n-placeholder="snippetPlaceholder" placeholder="Ex: 0xfffffff01a2b3c40  ou  AppleNANDFlash I/O timeout">
-        <p class="hint" data-i18n="snippetHint">Cole só o trecho que você encontrou — um endereço hex, o nome de um driver/IC, ou a linha de erro. Não precisa do log inteiro.</p>
-      </div>
-
-      <div class="row">
-        <button class="btn-primary" data-i18n="btnAnalisar" onclick="analisar()">Analisar</button>
-        <button class="btn-ghost" data-i18n="btnLimpar" onclick="limparLog()">Limpar</button>
-        <button class="btn-ghost" id="btnExemplo" data-i18n="btnExemplo" onclick="carregarExemplo()">Carregar exemplo</button>
-      </div>
-    </div>
-
-    <!-- RESULT -->
-    <div class="card">
-      <h2 data-i18n="h2Resultado">Resultado</h2>
-      <div id="resultado">
-        <p class="empty" data-i18n="resultadoEmptyFull">Cole um log e clique em "Analisar" para ver os campos extraídos e o diagnóstico sugerido.</p>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- HEX TABLE -->
-  <div class="card" style="margin-top:22px;">
-    <h2 data-i18n="h2HexTable">Endereços hexadecimais encontrados no log</h2>
-    <div id="hexResult"><p class="empty" data-i18n="hexEmptyInitial">Nenhum log analisado ainda.</p></div>
-  </div>
-
-  <!-- MANUAL CONVERTER -->
-  <div class="card" style="margin-top:22px;">
-    <h2 data-i18n="h2Conversor">Conversor manual</h2>
-    <div class="conv-row">
-      <div class="conv-col">
-        <span class="conv-label" data-i18n="labelHex">Hexadecimal</span>
-        <input type="text" id="hexIn" placeholder="0x1F4" oninput="fromHex()">
-      </div>
-      <div class="conv-col">
-        <span class="conv-label" data-i18n="labelDec">Decimal</span>
-        <input type="text" id="decIn" placeholder="500" oninput="fromDec()">
-      </div>
-      <div class="conv-col">
-        <span class="conv-label" data-i18n="labelBin">Binário</span>
-        <input type="text" id="binIn" placeholder="111110100" oninput="fromBin()">
-      </div>
-      <div class="conv-col">
-        <span class="conv-label" data-i18n="labelAscii">ASCII (se aplicável)</span>
-        <input type="text" id="asciiOut" placeholder="—" readonly>
-      </div>
+    <div class="legal">
+      <p><b>Aviso de marcas:</b> a iTechLab é uma assistência técnica independente e não é afiliada, autorizada ou patrocinada pela Apple Inc. iPhone, iOS, Face ID e True Tone são marcas da Apple Inc., citadas apenas para indicar compatibilidade dos serviços prestados.</p>
+      <p>© <span id="year"></span> iTechLab. Todos os direitos reservados.</p>
     </div>
   </div>
+</footer>
 
+<a class="wa-float" data-wa="Olá, iTechLab! Gostaria de informações para o meu iPhone." href="#" target="_blank" rel="noopener" aria-label="Chamar no WhatsApp" style="color:#fff"><svg class="ico"><use href="#wa"/></svg></a>
+<div class="mbar">
+  <a class="call" data-tel href="#">📞 Ligar</a>
+  <a class="wa" data-wa="Olá, iTechLab! Gostaria de um orçamento para o meu iPhone." href="#" target="_blank" rel="noopener"><svg class="ico"><use href="#wa"/></svg>Chamar no WhatsApp</a>
 </div>
 
 <script>
-// ---------- Captura qualquer erro de JS e mostra na tela (debug) ----------
-window.addEventListener('error', function(e){
-  const detalhe = document.getElementById('statusDetail');
-  if(detalhe) detalhe.textContent = 'Erro JS: ' + e.message + ' (linha ' + e.lineno + ')';
-});
-window.addEventListener('unhandledrejection', function(e){
-  const detalhe = document.getElementById('statusDetail');
-  const msg = (e.reason && e.reason.message) ? e.reason.message : String(e.reason);
-  if(detalhe) detalhe.textContent = 'Erro (promise não tratada): ' + msg;
-});
-
-// ---------- Internacionalização ----------
-const TRANSLATIONS = {
-  'pt-BR': {
-    tagline: 'Reparo · Precisão · Performance',
-    creditPrefix: 'sistema criado por',
-    h2Entrada: 'Entrada',
-    tabFull: 'Log completo',
-    tabSnippet: 'Só o código encontrado',
-    fileBtn: '📁 Escolher arquivo do explorador',
-    textareaPlaceholder: 'Cole aqui o conteúdo do panic full log (.ips) exportado do iPhone, ou escolha o arquivo acima...',
-    snippetPlaceholder: 'Ex: 0xfffffff01a2b3c40  ou  AppleNANDFlash I/O timeout',
-    snippetHint: 'Cole só o trecho que você encontrou — um endereço hex, o nome de um driver/IC, ou a linha de erro. Não precisa do log inteiro.',
-    btnAnalisar: 'Analisar',
-    btnLimpar: 'Limpar',
-    btnExemplo: 'Carregar exemplo',
-    btnExemploCodigo: 'Carregar exemplo de código',
-    h2Resultado: 'Resultado',
-    resultadoEmptyFull: 'Cole um log e clique em "Analisar" para ver os campos extraídos e o diagnóstico sugerido.',
-    resultadoEmptySnippet: 'Cole o código/trecho encontrado e clique em "Analisar".',
-    h2HexTable: 'Endereços hexadecimais encontrados no log',
-    hexEmptyInitial: 'Nenhum log analisado ainda.',
-    hexEmptyAnalise: 'Nenhuma análise feita ainda.',
-    h2Conversor: 'Conversor manual',
-    labelHex: 'Hexadecimal',
-    labelDec: 'Decimal',
-    labelBin: 'Binário',
-    labelAscii: 'ASCII (se aplicável)',
-    coleLogPrimeiro: 'Cole um log primeiro.',
-    coleTrechoPrimeiro: 'Cole o código/trecho encontrado primeiro.',
-    campoModelo: 'Modelo', campoBuild: 'Build/iOS', campoIncident: 'Incident ID', campoData: 'Data',
-    campoPanicString: 'String do panic', campoVersaoIOS: 'Versão iOS', campoProcesso: 'Processo',
-    campoTrecho: 'Trecho analisado', naoEncontrado: 'não encontrado',
-    arquivoReconhecido: 'Arquivo .ips reconhecido (formato JSON).',
-    tagBaseOnline: 'base online', tagExemploLocal: 'exemplo local', tagSemMatch: 'sem correspondência na base',
-    labelCausa: 'Causa provável', labelSolucao: 'Solução sugerida',
-    assinaturaNaoCatalogada: 'Assinatura não catalogada',
-    semMatchTexto: 'Nenhum padrão bateu com esse log — nem na base online, nem nos exemplos locais. Vale cadastrar esse caso no Supabase depois de diagnosticar, pra base crescer.',
-    thHex: 'Hex', thDec: 'Decimal', thAscii: 'ASCII',
-    nenhumHex: 'Nenhum valor hexadecimal (0x...) encontrado nesse log.',
-    tagSensorArray: 'sensor array · SMC',
-    sensorSemMatchTexto: 'O panic indica falha detectada pelo SMC, mas nenhum componente bateu com a base cadastrada pra esse modelo. Vale cadastrar esse caso no painel de administração depois de diagnosticar.'
+/* =====================================================================
+   CONFIGURAÇÃO — edite APENAS este bloco com os dados da sua loja.
+   ===================================================================== */
+const CONFIG = {
+  whatsapp: '5551985830221',              // DDI + DDD + número, só dígitos
+  phoneLabel: '(51) 98583-0221',
+  address: 'Rua Bezerra de Menezes, 87 – Sala 201 – Passo d’Areia, Porto Alegre / RS',
+  mapQuery: 'Rua Bezerra de Menezes, 87, Passo d Areia, Porto Alegre, RS', // '' esconde o mapa
+  cnpj: '',
+  warrantyMonths: 6,
+  installments: 0,                        // 0 para esconder
+  hours: { // 0 = domingo ... 6 = sábado; null = fechado
+    0: null,
+    1: ['09:00','18:00'], 2: ['09:00','18:00'], 3: ['09:00','18:00'],
+    4: ['09:00','18:00'], 5: ['09:00','18:00'], 6: ['09:00','15:00'],
   },
-  'pt-PT': {
-    tagline: 'Reparação · Precisão · Performance',
-    creditPrefix: 'sistema criado por',
-    h2Entrada: 'Entrada',
-    tabFull: 'Registo completo',
-    tabSnippet: 'Só o código encontrado',
-    fileBtn: '📁 Escolher ficheiro do explorador',
-    textareaPlaceholder: 'Cole aqui o conteúdo do panic full log (.ips) exportado do iPhone, ou escolha o ficheiro acima...',
-    snippetPlaceholder: 'Ex: 0xfffffff01a2b3c40  ou  AppleNANDFlash I/O timeout',
-    snippetHint: 'Cole apenas o trecho que encontrou — um endereço hex, o nome de um driver/IC, ou a linha de erro. Não precisa do registo inteiro.',
-    btnAnalisar: 'Analisar',
-    btnLimpar: 'Limpar',
-    btnExemplo: 'Carregar exemplo',
-    btnExemploCodigo: 'Carregar exemplo de código',
-    h2Resultado: 'Resultado',
-    resultadoEmptyFull: 'Cole um registo e clique em "Analisar" para ver os campos extraídos e o diagnóstico sugerido.',
-    resultadoEmptySnippet: 'Cole o código/trecho encontrado e clique em "Analisar".',
-    h2HexTable: 'Endereços hexadecimais encontrados no registo',
-    hexEmptyInitial: 'Nenhum registo analisado ainda.',
-    hexEmptyAnalise: 'Nenhuma análise feita ainda.',
-    h2Conversor: 'Conversor manual',
-    labelHex: 'Hexadecimal',
-    labelDec: 'Decimal',
-    labelBin: 'Binário',
-    labelAscii: 'ASCII (se aplicável)',
-    coleLogPrimeiro: 'Cole um registo primeiro.',
-    coleTrechoPrimeiro: 'Cole o código/trecho encontrado primeiro.',
-    campoModelo: 'Modelo', campoBuild: 'Build/iOS', campoIncident: 'Incident ID', campoData: 'Data',
-    campoPanicString: 'String do panic', campoVersaoIOS: 'Versão iOS', campoProcesso: 'Processo',
-    campoTrecho: 'Trecho analisado', naoEncontrado: 'não encontrado',
-    arquivoReconhecido: 'Ficheiro .ips reconhecido (formato JSON).',
-    tagBaseOnline: 'base online', tagExemploLocal: 'exemplo local', tagSemMatch: 'sem correspondência na base',
-    labelCausa: 'Causa provável', labelSolucao: 'Solução sugerida',
-    assinaturaNaoCatalogada: 'Assinatura não catalogada',
-    semMatchTexto: 'Nenhum padrão coincidiu com este registo — nem na base online, nem nos exemplos locais. Vale a pena registar este caso depois de diagnosticar, para a base crescer.',
-    thHex: 'Hex', thDec: 'Decimal', thAscii: 'ASCII',
-    nenhumHex: 'Nenhum valor hexadecimal (0x...) encontrado neste registo.',
-    tagSensorArray: 'sensor array · SMC',
-    sensorSemMatchTexto: 'O panic indica falha detetada pelo SMC, mas nenhum componente coincidiu com a base registada para este modelo. Vale a pena registar este caso no painel de administração depois de diagnosticar.'
-  },
-  'en': {
-    tagline: 'Repair · Precision · Performance',
-    creditPrefix: 'system built by',
-    h2Entrada: 'Input',
-    tabFull: 'Full log',
-    tabSnippet: 'Just the code found',
-    fileBtn: '📁 Choose file from explorer',
-    textareaPlaceholder: 'Paste the panic full log (.ips) content exported from the iPhone, or choose the file above...',
-    snippetPlaceholder: 'E.g.: 0xfffffff01a2b3c40  or  AppleNANDFlash I/O timeout',
-    snippetHint: 'Paste just the snippet you found — a hex address, a driver/IC name, or the error line. No need for the whole log.',
-    btnAnalisar: 'Analyze',
-    btnLimpar: 'Clear',
-    btnExemplo: 'Load example',
-    btnExemploCodigo: 'Load example code',
-    h2Resultado: 'Result',
-    resultadoEmptyFull: 'Paste a log and click "Analyze" to see the extracted fields and suggested diagnosis.',
-    resultadoEmptySnippet: 'Paste the found code/snippet and click "Analyze".',
-    h2HexTable: 'Hexadecimal addresses found in the log',
-    hexEmptyInitial: 'No log analyzed yet.',
-    hexEmptyAnalise: 'No analysis done yet.',
-    h2Conversor: 'Manual converter',
-    labelHex: 'Hexadecimal',
-    labelDec: 'Decimal',
-    labelBin: 'Binary',
-    labelAscii: 'ASCII (if applicable)',
-    coleLogPrimeiro: 'Paste a log first.',
-    coleTrechoPrimeiro: 'Paste the found code/snippet first.',
-    campoModelo: 'Model', campoBuild: 'Build/iOS', campoIncident: 'Incident ID', campoData: 'Date',
-    campoPanicString: 'Panic string', campoVersaoIOS: 'iOS Version', campoProcesso: 'Process',
-    campoTrecho: 'Analyzed snippet', naoEncontrado: 'not found',
-    arquivoReconhecido: '.ips file recognized (JSON format).',
-    tagBaseOnline: 'online database', tagExemploLocal: 'local example', tagSemMatch: 'no match in database',
-    labelCausa: 'Probable cause', labelSolucao: 'Suggested solution',
-    assinaturaNaoCatalogada: 'Uncatalogued signature',
-    semMatchTexto: 'No pattern matched this log — neither in the online database nor in the local examples. Worth registering this case after diagnosing it, so the database grows.',
-    thHex: 'Hex', thDec: 'Decimal', thAscii: 'ASCII',
-    nenhumHex: 'No hexadecimal value (0x...) found in this log.',
-    tagSensorArray: 'sensor array · SMC',
-    sensorSemMatchTexto: 'The panic indicates an SMC-detected failure, but no component matched the registered database for this model. Worth registering this case in the admin panel after diagnosing it.'
-  },
-  'es': {
-    tagline: 'Reparación · Precisión · Rendimiento',
-    creditPrefix: 'sistema creado por',
-    h2Entrada: 'Entrada',
-    tabFull: 'Registro completo',
-    tabSnippet: 'Solo el código encontrado',
-    fileBtn: '📁 Elegir archivo del explorador',
-    textareaPlaceholder: 'Pega aquí el contenido del panic full log (.ips) exportado del iPhone, o elige el archivo arriba...',
-    snippetPlaceholder: 'Ej: 0xfffffff01a2b3c40  o  AppleNANDFlash I/O timeout',
-    snippetHint: 'Pega solo el fragmento que encontraste — una dirección hex, el nombre de un driver/IC, o la línea de error. No hace falta el registro entero.',
-    btnAnalisar: 'Analizar',
-    btnLimpar: 'Limpiar',
-    btnExemplo: 'Cargar ejemplo',
-    btnExemploCodigo: 'Cargar ejemplo de código',
-    h2Resultado: 'Resultado',
-    resultadoEmptyFull: 'Pega un registro y haz clic en "Analizar" para ver los campos extraídos y el diagnóstico sugerido.',
-    resultadoEmptySnippet: 'Pega el código/fragmento encontrado y haz clic en "Analizar".',
-    h2HexTable: 'Direcciones hexadecimales encontradas en el registro',
-    hexEmptyInitial: 'Ningún registro analizado todavía.',
-    hexEmptyAnalise: 'Ningún análisis realizado todavía.',
-    h2Conversor: 'Conversor manual',
-    labelHex: 'Hexadecimal',
-    labelDec: 'Decimal',
-    labelBin: 'Binario',
-    labelAscii: 'ASCII (si aplica)',
-    coleLogPrimeiro: 'Pega un registro primero.',
-    coleTrechoPrimeiro: 'Pega el código/fragmento encontrado primero.',
-    campoModelo: 'Modelo', campoBuild: 'Build/iOS', campoIncident: 'Incident ID', campoData: 'Fecha',
-    campoPanicString: 'Cadena del panic', campoVersaoIOS: 'Versión de iOS', campoProcesso: 'Proceso',
-    campoTrecho: 'Fragmento analizado', naoEncontrado: 'no encontrado',
-    arquivoReconhecido: 'Archivo .ips reconocido (formato JSON).',
-    tagBaseOnline: 'base en línea', tagExemploLocal: 'ejemplo local', tagSemMatch: 'sin coincidencia en la base',
-    labelCausa: 'Causa probable', labelSolucao: 'Solución sugerida',
-    assinaturaNaoCatalogada: 'Firma no catalogada',
-    semMatchTexto: 'Ningún patrón coincidió con este registro — ni en la base en línea, ni en los ejemplos locales. Vale la pena registrar este caso tras diagnosticarlo, para que la base crezca.',
-    thHex: 'Hex', thDec: 'Decimal', thAscii: 'ASCII',
-    nenhumHex: 'No se encontró ningún valor hexadecimal (0x...) en este registro.',
-    tagSensorArray: 'sensor array · SMC',
-    sensorSemMatchTexto: 'El panic indica un fallo detectado por el SMC, pero ningún componente coincidió con la base registrada para este modelo. Vale la pena registrar este caso en el panel de administración tras diagnosticarlo.'
-  },
-  'ar': {
-    tagline: 'إصلاح · دقة · أداء',
-    creditPrefix: 'نظام تم إنشاؤه بواسطة',
-    h2Entrada: 'الإدخال',
-    tabFull: 'السجل الكامل',
-    tabSnippet: 'فقط الكود الذي تم العثور عليه',
-    fileBtn: '📁 اختيار ملف من المستكشف',
-    textareaPlaceholder: 'الصق هنا محتوى panic full log (.ips) المُصدَّر من الآيفون، أو اختر الملف أعلاه...',
-    snippetPlaceholder: 'مثال: 0xfffffff01a2b3c40  أو  AppleNANDFlash I/O timeout',
-    snippetHint: 'الصق فقط المقطع الذي وجدته — عنوان سداسي عشري، اسم برنامج تشغيل/IC، أو سطر الخطأ. لا حاجة للسجل بأكمله.',
-    btnAnalisar: 'تحليل',
-    btnLimpar: 'مسح',
-    btnExemplo: 'تحميل مثال',
-    btnExemploCodigo: 'تحميل مثال للكود',
-    h2Resultado: 'النتيجة',
-    resultadoEmptyFull: 'الصق سجلاً وانقر على "تحليل" لرؤية الحقول المستخرجة والتشخيص المقترح.',
-    resultadoEmptySnippet: 'الصق الكود/المقطع الذي وجدته وانقر على "تحليل".',
-    h2HexTable: 'العناوين السداسية عشرية الموجودة في السجل',
-    hexEmptyInitial: 'لم يتم تحليل أي سجل بعد.',
-    hexEmptyAnalise: 'لم يتم إجراء أي تحليل بعد.',
-    h2Conversor: 'محول يدوي',
-    labelHex: 'سداسي عشري',
-    labelDec: 'عشري',
-    labelBin: 'ثنائي',
-    labelAscii: 'ASCII (إن أمكن)',
-    coleLogPrimeiro: 'الصق سجلاً أولاً.',
-    coleTrechoPrimeiro: 'الصق الكود/المقطع الذي وجدته أولاً.',
-    campoModelo: 'الطراز', campoBuild: 'Build/iOS', campoIncident: 'معرّف الحادثة', campoData: 'التاريخ',
-    campoPanicString: 'نص الـ panic', campoVersaoIOS: 'إصدار iOS', campoProcesso: 'العملية',
-    campoTrecho: 'المقطع الذي تم تحليله', naoEncontrado: 'غير موجود',
-    arquivoReconhecido: 'تم التعرف على ملف .ips (تنسيق JSON).',
-    tagBaseOnline: 'قاعدة بيانات متصلة', tagExemploLocal: 'مثال محلي', tagSemMatch: 'لا توجد مطابقة في القاعدة',
-    labelCausa: 'السبب المحتمل', labelSolucao: 'الحل المقترح',
-    assinaturaNaoCatalogada: 'توقيع غير مصنف',
-    semMatchTexto: 'لم يطابق أي نمط هذا السجل — لا في القاعدة المتصلة ولا في الأمثلة المحلية. يستحق تسجيل هذه الحالة بعد التشخيص لتنمو القاعدة.',
-    thHex: 'سداسي عشري', thDec: 'عشري', thAscii: 'ASCII',
-    nenhumHex: 'لم يتم العثور على أي قيمة سداسية عشرية (0x...) في هذا السجل.',
-    tagSensorArray: 'sensor array · SMC',
-    sensorSemMatchTexto: 'يشير الـ panic إلى عطل اكتشفه SMC، لكن لم يطابق أي مكوّن القاعدة المسجلة لهذا الطراز. يستحق تسجيل هذه الحالة في لوحة الإدارة بعد التشخيص.'
-  },
-  'hi': {
-    tagline: 'मरम्मत · सटीकता · प्रदर्शन',
-    creditPrefix: 'सिस्टम बनाया गया',
-    h2Entrada: 'इनपुट',
-    tabFull: 'पूरा लॉग',
-    tabSnippet: 'सिर्फ़ मिला हुआ कोड',
-    fileBtn: '📁 एक्सप्लोरर से फ़ाइल चुनें',
-    textareaPlaceholder: 'आईफ़ोन से निर्यात किया गया panic full log (.ips) यहाँ पेस्ट करें, या ऊपर फ़ाइल चुनें...',
-    snippetPlaceholder: 'उदा: 0xfffffff01a2b3c40  या  AppleNANDFlash I/O timeout',
-    snippetHint: 'सिर्फ़ वह अंश पेस्ट करें जो आपको मिला — एक हेक्स पता, किसी ड्राइवर/IC का नाम, या एरर लाइन। पूरे लॉग की ज़रूरत नहीं है।',
-    btnAnalisar: 'विश्लेषण करें',
-    btnLimpar: 'साफ़ करें',
-    btnExemplo: 'उदाहरण लोड करें',
-    btnExemploCodigo: 'उदाहरण कोड लोड करें',
-    h2Resultado: 'परिणाम',
-    resultadoEmptyFull: 'एक लॉग पेस्ट करें और निकाले गए फ़ील्ड और सुझाया गया निदान देखने के लिए "विश्लेषण करें" पर क्लिक करें।',
-    resultadoEmptySnippet: 'मिला हुआ कोड/अंश पेस्ट करें और "विश्लेषण करें" पर क्लिक करें।',
-    h2HexTable: 'लॉग में मिले हेक्साडेसिमल पते',
-    hexEmptyInitial: 'अभी तक कोई लॉग विश्लेषित नहीं हुआ।',
-    hexEmptyAnalise: 'अभी तक कोई विश्लेषण नहीं हुआ।',
-    h2Conversor: 'मैन्युअल कनवर्टर',
-    labelHex: 'हेक्साडेसिमल',
-    labelDec: 'दशमलव',
-    labelBin: 'बाइनरी',
-    labelAscii: 'ASCII (यदि लागू हो)',
-    coleLogPrimeiro: 'पहले एक लॉग पेस्ट करें।',
-    coleTrechoPrimeiro: 'पहले मिला हुआ कोड/अंश पेस्ट करें।',
-    campoModelo: 'मॉडल', campoBuild: 'Build/iOS', campoIncident: 'Incident ID', campoData: 'तारीख़',
-    campoPanicString: 'Panic स्ट्रिंग', campoVersaoIOS: 'iOS संस्करण', campoProcesso: 'प्रक्रिया',
-    campoTrecho: 'विश्लेषित अंश', naoEncontrado: 'नहीं मिला',
-    arquivoReconhecido: '.ips फ़ाइल पहचानी गई (JSON प्रारूप)।',
-    tagBaseOnline: 'ऑनलाइन डेटाबेस', tagExemploLocal: 'स्थानीय उदाहरण', tagSemMatch: 'डेटाबेस में कोई मेल नहीं',
-    labelCausa: 'संभावित कारण', labelSolucao: 'सुझाया गया समाधान',
-    assinaturaNaoCatalogada: 'असूचीबद्ध हस्ताक्षर',
-    semMatchTexto: 'कोई पैटर्न इस लॉग से मेल नहीं खाया — न ऑनलाइन डेटाबेस में, न स्थानीय उदाहरणों में। निदान के बाद इस मामले को दर्ज करना उचित होगा, ताकि डेटाबेस बढ़े।',
-    thHex: 'हेक्स', thDec: 'दशमलव', thAscii: 'ASCII',
-    nenhumHex: 'इस लॉग में कोई हेक्साडेसिमल मान (0x...) नहीं मिला।',
-    tagSensorArray: 'sensor array · SMC',
-    sensorSemMatchTexto: 'Panic SMC द्वारा पहचानी गई एक विफलता दिखाता है, लेकिन इस मॉडल के लिए दर्ज डेटाबेस से कोई घटक मेल नहीं खाया। निदान के बाद एडमिन पैनल में इस मामले को दर्ज करना उचित होगा।'
-  }
+  googleRating: null,                      // só dados reais: { score: '5.0', count: 120 }
+  reviews: [],                             // só avaliações reais: { name, when, text }
 };
 
-let idiomaAtual = localStorage.getItem('itechlab_idioma') || 'pt-BR';
-const LANG_LABELS = {'pt-BR':'PT-BR','pt-PT':'PT-PT','en':'EN','es':'ES','ar':'AR','hi':'HI'};
-const LANG_FLAG_CODES = {'pt-BR':'br','pt-PT':'pt','en':'us','es':'es','ar':'sa','hi':'in'};
-
-function t(key){
-  return (TRANSLATIONS[idiomaAtual] && TRANSLATIONS[idiomaAtual][key]) || TRANSLATIONS['pt-BR'][key] || key;
-}
-
-function aplicarIdioma(){
-  document.documentElement.lang = idiomaAtual;
-  document.documentElement.dir = (idiomaAtual === 'ar') ? 'rtl' : 'ltr';
-  document.querySelectorAll('[data-i18n]').forEach(el => {
-    el.textContent = t(el.getAttribute('data-i18n'));
-  });
-  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-    el.placeholder = t(el.getAttribute('data-i18n-placeholder'));
-  });
-  const label = document.getElementById('idiomaAtualLabel');
-  if(label) label.textContent = LANG_LABELS[idiomaAtual] || idiomaAtual;
-  const flagImg = document.getElementById('idiomaAtualFlag');
-  if(flagImg) flagImg.src = 'https://flagcdn.com/24x18/' + (LANG_FLAG_CODES[idiomaAtual] || 'br') + '.png';
-  const btnEx = document.getElementById('btnExemplo');
-  if(btnEx) btnEx.textContent = (typeof modoAtual !== 'undefined' && modoAtual === 'snippet') ? t('btnExemploCodigo') : t('btnExemplo');
-}
-
-function mudarIdioma(lang){
-  idiomaAtual = lang;
-  localStorage.setItem('itechlab_idioma', lang);
-  aplicarIdioma();
-  document.getElementById('menuIdioma').style.display = 'none';
-}
-
-function toggleMenuIdioma(){
-  const m = document.getElementById('menuIdioma');
-  m.style.display = m.style.display === 'none' ? 'block' : 'none';
-}
-
-document.addEventListener('click', function(e){
-  const box = document.getElementById('btnIdioma');
-  const menu = document.getElementById('menuIdioma');
-  if(menu && menu.style.display === 'block' && !menu.contains(e.target) && e.target !== box){
-    menu.style.display = 'none';
-  }
-});
-
-// (a base é carregada no fim do script, depois de tudo estar declarado)
-
-const SUPABASE_URL = 'https://vpwwtgecmpbuucpyunot.supabase.co/rest/v1/';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwd3d0Z2VjbXBidXVjcHl1bm90Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0ODEwMTEsImV4cCI6MjEwNDA1NzAxMX0.4l1IxtNRB2SP-hfxifcE34DjLGgP6SktQMz9qcsDHjA';
-
-let conexaoOk = null; // null = ainda não testou, true/false depois do teste
-let conexaoErroMsg = '';
-let totalCasos = null;
-
-async function chamarRPC(nomeFuncao, params){
-  const pedido = fetch(SUPABASE_URL + 'rpc/' + nomeFuncao, {
-    method: 'POST',
-    headers: {
-      apikey: SUPABASE_KEY,
-      Authorization: 'Bearer ' + SUPABASE_KEY,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(params || {})
-  });
-  const tempoEsgotado = new Promise((_, reject) =>
-    setTimeout(() => reject(new Error('tempo esgotado (8s)')), 8000)
-  );
-  const resp = await Promise.race([pedido, tempoEsgotado]);
-  if(!resp.ok){
-    const corpo = await resp.text().catch(() => '');
-    throw new Error('HTTP ' + resp.status + (corpo ? ' — ' + corpo.slice(0,150) : ''));
-  }
-  return resp.json();
-}
-
-async function carregarBaseRemota(){
-  try{
-    const total = await chamarRPC('contar_casos', {});
-    totalCasos = typeof total === 'number' ? total : (Array.isArray(total) ? total.length : null);
-    conexaoOk = true;
-    conexaoErroMsg = '';
-  }catch(e){
-    conexaoOk = false;
-    conexaoErroMsg = e.message || String(e);
-    console.error('Falha ao conectar na base remota:', e);
-  }
-  atualizarStatusPill();
-  return conexaoOk;
-}
-
-function atualizarStatusPill(){
-  const pill = document.getElementById('statusPill');
-  const detalhe = document.getElementById('statusDetail');
-  if(conexaoOk){
-    pill.textContent = 'base online';
-    if(detalhe) detalhe.textContent = '';
-  } else if(conexaoOk === false){
-    pill.textContent = 'sem conexão com a base online';
-    if(detalhe) detalhe.textContent = 'Erro: ' + conexaoErroMsg;
-  } else {
-    pill.textContent = 'conectando à base online...';
-  }
-}
-
-async function buscarNaBaseRemota(textoParaMatch, hexsEncontrados, produto){
-  try{
-    const porPalavra = await chamarRPC('buscar_por_palavra', {p_texto: textoParaMatch});
-    if(porPalavra && porPalavra.length) return porPalavra[0];
-  }catch(e){ console.error('Falha na busca por palavra-chave:', e); }
-
-  if(hexsEncontrados && hexsEncontrados.length){
-    try{
-      const porHex = await chamarRPC('buscar_por_hex', {p_hexs: hexsEncontrados});
-      if(porHex && porHex.length) return porHex[0];
-    }catch(e){ console.error('Falha na busca por hex:', e); }
-  }
-  return null;
-}
-
-// ---------- Tabela de "sensor array" (panics de SMC) por modelo ----------
-// Baseada em relatos documentados pela comunidade de reparo (iFixit), não é doc oficial da Apple.
-// Mapeamento de código de produto Apple → nome de grupo usado na coluna "modelo" do Supabase.
-// Isso é só um mapeamento técnico de nomenclatura — os dados de diagnóstico (componente/causa/solução)
-// ficam inteiramente no banco, não aqui.
-const GRUPO_PRODUTO = {
-  'iPhone14,5':'iPhone 13 series', 'iPhone14,2':'iPhone 13 series', 'iPhone14,3':'iPhone 13 series',
-  'iPhone14,4':'iPhone 13 mini',
-  'iPhone14,7':'iPhone 14/14 Plus', 'iPhone14,8':'iPhone 14/14 Plus',
-  'iPhone15,2':'iPhone 14 Pro/Pro Max', 'iPhone15,3':'iPhone 14 Pro/Pro Max',
-  'iPhone15,4':'iPhone 15/15 Plus', 'iPhone15,5':'iPhone 15/15 Plus',
-  'iPhone16,1':'iPhone 15 Pro/Pro Max', 'iPhone16,2':'iPhone 15 Pro/Pro Max',
-  'iPhone17,3':'iPhone 16/16 Plus', 'iPhone17,4':'iPhone 16/16 Plus',
-  'iPhone17,1':'iPhone 16 Pro/Pro Max', 'iPhone17,2':'iPhone 16 Pro/Pro Max'
+const GENERATIONS = {
+  'iPhone 17': ['iPhone 17','iPhone Air','iPhone 17 Pro','iPhone 17 Pro Max'],
+  'iPhone 16': ['iPhone 16e','iPhone 16','iPhone 16 Plus','iPhone 16 Pro','iPhone 16 Pro Max'],
+  'iPhone 15': ['iPhone 15','iPhone 15 Plus','iPhone 15 Pro','iPhone 15 Pro Max'],
+  'iPhone 14': ['iPhone 14','iPhone 14 Plus','iPhone 14 Pro','iPhone 14 Pro Max'],
+  'iPhone 13': ['iPhone 13 mini','iPhone 13','iPhone 13 Pro','iPhone 13 Pro Max'],
+  'iPhone 12': ['iPhone 12 mini','iPhone 12','iPhone 12 Pro','iPhone 12 Pro Max'],
+  'iPhone 11': ['iPhone 11','iPhone 11 Pro','iPhone 11 Pro Max'],
+  'X / XR / XS / SE': ['iPhone XS Max','iPhone XS','iPhone XR','iPhone X','iPhone SE (3ª geração)','iPhone SE (2ª geração)','iPhone 8 Plus','iPhone 8'],
 };
 
-function buscarGrupoPorProduto(produto){
-  return produto ? (GRUPO_PRODUTO[produto] || null) : null;
-}
-
-// ---------- Base de conhecimento (EXEMPLO — trocar por casos reais da assistência) ----------
-const BASE_CONHECIMENTO = [
-  {
-    id: 'smc_generico',
-    nome: 'SMC PANIC (falha de comunicação com sensor)',
-    padroes: [/smc panic/i, /smc bsc failure/i],
-    causa: 'Panic do System Management Controller (SMC) por falha de comunicação com um sensor específico. O valor da "sensor array" no log aponta qual componente está sem resposta.',
-    solucao: 'Converter o valor da sensor array para hexadecimal e cruzar com a tabela do modelo (porta de carga, sensor frontal, bateria, bobina de carga sem fio, giroscópio ou flex do power, dependendo do modelo).'
-  },
-  {
-    id: 'watchdog_mic',
-    nome: 'Watchdog do userspace — sensor de microfone ausente (mic1/mic2)',
-    padroes: [/missing sensor\(s\):\s*mic\d/i, /thermalmonitord/i],
-    causa: 'O watchdog do userspace derrubou o sistema porque o thermalmonitord não conseguiu confirmar a presença do microfone inferior (mic1 ou mic2) durante a checagem de saúde. Padrão bem documentado em iPhone X/11, normalmente com reinícios em ciclos de ~180 segundos.',
-    solucao: 'Mic2 costuma estar no flex do power/flash (power flex cable) — é o primeiro suspeito, não o flex do conector de carga. Trocar por uma flex de boa procedência (aftermarket de baixa qualidade às vezes não resolve). Se persistir após a troca, checar oxidação/corrosão no conector da placa ou dano na região durante troca de tampa traseira, principalmente se o aparelho já pegou líquido.'
-  },
-  {
-    id: 'nand',
-    nome: 'Falha de armazenamento NAND / controlador de flash',
-    padroes: [/nand/i, /appleNandFlash/i, /disk0/i, /flash\s*controller/i, /IOFlashController/i],
-    causa: 'Indícios de falha no chip de armazenamento (NAND) ou no controlador de flash integrado ao SoC. Comum em placas com desgaste de memória ou reballing malfeito anteriormente.',
-    solucao: 'Testar boot em modo DFU/recovery, checar se o disco é reconhecido pelo 3uTools/Finder. Se não montar, avaliar reflow/reball do NAND ou substituição da placa lógica. Fazer backup imediato se o aparelho ainda ligar.'
-  },
-  {
-    id: 'pmu',
-    nome: 'Instabilidade de energia / PMU',
-    padroes: [/\bpmu\b/i, /power management/i, /\bsmc\b/i, /charge trap/i, /battery/i],
-    causa: 'Panic relacionado ao gerenciamento de energia — pode envolver o IC de gerenciamento de energia (PMU), bateria degradada ou curto em linha de alimentação.',
-    solucao: 'Medir consumo em fonte de bancada, checar curto nas linhas de PP_VDD antes de reflow em qualquer IC. Testar com bateria conhecida boa. Se consumo estiver anormal, mapear componente em curto termicamente.'
-  },
-  {
-    id: 'wifi_bt',
-    nome: 'Wi-Fi / Bluetooth (Broadcom)',
-    padroes: [/broadcom/i, /bcmwlan/i, /wifi/i, /bluetooth/i, /AppleBCM/i],
-    causa: 'Panic disparado por driver do chip combo Wi-Fi/Bluetooth. Pode ser falha do próprio IC, dessoldagem parcial ou dano por líquido na região.',
-    solucao: 'Inspecionar oxidação/corrosão na área do chip Wi-Fi/BT sob microscópio. Testar Wi-Fi isoladamente no modo diagnóstico. Reballing do IC combo costuma resolver quando não há dano por líquido.'
-  },
-  {
-    id: 'display',
-    nome: 'Pipeline de display / backlight',
-    padroes: [/backlight/i, /displaypipe/i, /\bdcp\b/i, /appledisplay/i],
-    causa: 'Erro relacionado ao controlador de display (DCP) ou circuito de backlight — comum após troca de tela não original ou dano físico na flex da tela.',
-    solucao: 'Testar com tela original conhecida boa. Checar continuidade da flex do display e capacitores/bobinas de backlight na placa. Reprogramar DCP se aplicável ao modelo.'
-  },
-  {
-    id: 'baseband',
-    nome: 'Baseband / modem celular',
-    padroes: [/baseband/i, /qualcomm/i, /\bmodem\b/i, /applebaseband/i],
-    causa: 'Panic vindo do subsistema de baseband — pode indicar corrupção de firmware do modem ou falha no IC de RF.',
-    solucao: 'Tentar restauração via IPSW para reprogramar o baseband. Se persistir após restore limpo, investigar hardware do modem/RF na placa.'
-  }
+const SERVICES = [
+  {ico:'📱', pill:'Alta fidelidade', name:'Telas e Displays', key:'TELA / DISPLAY', desc:'Tela trincada, manchas, linhas ou touch falhando. Cores fiéis, brilho e toque precisos.'},
+  {ico:'🔋', pill:'Saúde 100%', name:'Baterias', key:'BATERIA', desc:'Descarregando rápido ou desligando sozinho? Bateria nova com capacidade total.'},
+  {ico:'✨', pill:'Acabamento', name:'Vidro Traseiro', key:'VIDRO TRASEIRO', desc:'Traseira quebrada? Substituição com acabamento de fábrica e cor original.'},
+  {ico:'📸', pill:'Óptica', name:'Câmeras e Lentes', key:'CÂMERA / LENTE', desc:'Foto embaçada, câmera tremendo ou lente trincada. Imagem nítida de novo.'},
+  {ico:'🔌', pill:'Energia', name:'Conector de Carga', key:'CONECTOR DE CARGA', desc:'Não carrega ou só com o cabo torto? Limpeza ou troca do conector Lightning / USB-C.'},
+  {ico:'🙂', pill:'Biometria', name:'Face ID', key:'FACE ID', desc:'Face ID indisponível ou falhando. Diagnóstico e reparo do módulo TrueDepth.'},
+  {ico:'🧩', pill:'Microsoldagem', name:'Reparo de Placa', key:'REPARO DE PLACA', desc:'Não liga, reinicia em loop, sem sinal ou sem áudio. Reparo em nível de componente.'},
+  {ico:'🔊', pill:'Som limpo', name:'Áudio e Microfone', key:'ÁUDIO / MICROFONE', desc:'Som baixo, chiado ou ninguém te ouve nas ligações. Alto-falante e microfone novos.'},
 ];
+const QUOTE_SERVICES = ['Tela','Bateria','Vidro traseiro','Câmera','Conector de carga','Face ID','Não liga / placa','Áudio','Outro'];
 
-// ---------- Parse do formato .ips real (JSON) ----------
-function tentarParseJsonIps(texto){
-  try{
-    const primeiraQuebra = texto.indexOf('\n');
-    if(primeiraQuebra === -1) return null;
-    const header = JSON.parse(texto.slice(0, primeiraQuebra));
-    const body = JSON.parse(texto.slice(primeiraQuebra + 1));
-    if(!body || typeof body !== 'object') return null;
-    return {header, body};
-  }catch(e){
-    return null;
-  }
+const $ = (s, el=document) => el.querySelector(s);
+const $$ = (s, el=document) => [...el.querySelectorAll(s)];
+const waLink = m => `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(m)}`;
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const WA_ICO = '<svg class="ico"><use href="#wa"/></svg>';
+
+$('#chips').innerHTML = Object.keys(GENERATIONS).map(g => `<span class="chip">📱 ${esc(g)}</span>`).join('') + '<span class="chip">🧩 Reparo de placa</span>';
+
+$('#cards').innerHTML = SERVICES.map(s => `
+  <a class="card reveal" target="_blank" rel="noopener" href="${waLink(`Olá, iTechLab! Gostaria de consultar valor de ${s.key} para o meu iPhone.`)}">
+    <div class="card-top"><div class="card-ico">${s.ico}</div><span class="pill">${esc(s.pill)}</span></div>
+    <h3>${esc(s.name)}</h3>
+    <p>${esc(s.desc)}</p>
+    <div class="card-foot">Consultar valor <span class="arr">→</span></div>
+  </a>`).join('');
+
+/* Config bindings */
+$$('[data-wa]').forEach(a => a.href = waLink(a.dataset.wa));
+$$('[data-tel]').forEach(a => a.href = 'tel:+' + CONFIG.whatsapp);
+$$('[data-phone]').forEach(e => e.textContent = CONFIG.phoneLabel);
+$$('[data-address]').forEach(e => e.textContent = CONFIG.address);
+$('#year').textContent = new Date().getFullYear();
+if (CONFIG.warrantyMonths) {
+  $$('[data-warranty-short]').forEach(e => e.innerHTML = `Até ${CONFIG.warrantyMonths}m<br>garantia`);
+  $$('[data-warranty-long]').forEach(e => e.textContent = `Garantia documentada de até ${CONFIG.warrantyMonths} meses em todo serviço, para você ficar tranquilo com a peça instalada.`);
 }
+if (CONFIG.installments) $$('[data-installments]').forEach(e => e.innerHTML = `Até ${CONFIG.installments}x no<br>cartão`);
+if (CONFIG.cnpj) { $('#cnpj').textContent = CONFIG.cnpj; $('#cnpjRow').classList.remove('hidden'); }
 
-function carregarArquivo(event){
-  const file = event.target.files[0];
-  if(!file) return;
-  document.getElementById('fileName').textContent = file.name;
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    document.getElementById('logInput').value = e.target.result;
-  };
-  reader.readAsText(file);
-}
-
-// ---------- Sensor array (SMC) ----------
-function extrairSensorArray(texto){
-  const m = texto.match(/sensor array\s+\d+\s*-\s*\d+\s+is\s+([^\n]+)/i);
-  if(!m) return null;
-  return m[1].split(',').map(s => s.trim()).filter(Boolean).map(p => {
-    return /^0x/i.test(p) ? parseInt(p, 16) : parseInt(p, 10);
+(function hours(){
+  const short = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'], groups = [];
+  [1,2,3,4,5,6,0].forEach(d => {
+    const h = CONFIG.hours[d], key = h ? h.join('-') : 'x', last = groups.at(-1);
+    if (last && last.key === key) last.days.push(d); else groups.push({key, h, days:[d]});
   });
+  const html = groups.filter(g => g.h).map(g => {
+    const lbl = g.days.length > 1 ? `${short[g.days[0]]} a ${short[g.days.at(-1)]}` : short[g.days[0]];
+    return `${lbl}: ${g.h[0]} às ${g.h[1]}`;
+  }).join('<br>');
+  $$('[data-hours]').forEach(e => e.innerHTML = html);
+})();
+
+function tick(){
+  const now = new Date(), h = CONFIG.hours[now.getDay()], hm = now.toTimeString().slice(0,5);
+  const open = h && hm >= h[0] && hm < h[1];
+  $('#dot').classList.toggle('off', !open);
+  $('#status').textContent = open ? 'Atendimento Online' : 'Loja fechada agora · deixe sua mensagem';
+  const wd = now.toLocaleDateString('pt-BR',{weekday:'long'});
+  $('#now').textContent = `${wd.charAt(0).toUpperCase()+wd.slice(1)} · ${hm}`;
+  $('#pTime').textContent = `${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
+  $('#pDate').textContent = now.toLocaleDateString('pt-BR',{weekday:'short',day:'numeric',month:'short'}).replace(/\./g,'');
+}
+tick(); setInterval(tick, 30000);
+
+if (CONFIG.googleRating) {
+  const {score, count} = CONFIG.googleRating;
+  $('#heroRatingText').textContent = `${score} de 5 no Google (+${count} avaliações)`;
+  $('#heroRating').classList.remove('hidden');
+  $('#scoreNum').textContent = score;
+  $('#scoreText').textContent = `+${count} avaliações no Google`;
+  $('#score').classList.remove('hidden');
+}
+if (CONFIG.reviews.length) {
+  $('#reviews').innerHTML = CONFIG.reviews.map(r => {
+    const ini = r.name.split(/\s+/).map(p => p[0]).slice(0,2).join('').toUpperCase();
+    return `<div class="review reveal"><div class="r-head"><div class="avatar">${esc(ini)}</div><div><b>${esc(r.name)}</b><small>${esc(r.when||'')}</small></div></div><div class="stars">★★★★★</div><p>“${esc(r.text)}”</p></div>`;
+  }).join('');
+  $('#depoimentos').classList.remove('hidden');
+}
+if (CONFIG.mapQuery) {
+  $('#map').innerHTML = `<iframe title="Mapa da iTechLab" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=${encodeURIComponent(CONFIG.mapQuery)}&output=embed"></iframe>`;
+} else {
+  $('#map').classList.add('hidden');
+  $('.store').style.gridTemplateColumns = '1fr';
 }
 
-async function montarCardSensorArray(texto, produto){
-  const valores = extrairSensorArray(texto);
-  if(!valores) return '';
-  const grupoNome = buscarGrupoPorProduto(produto);
-
-  let linhasFlags = [];
-  try{
-    linhasFlags = await chamarRPC('buscar_sensor_hex', {p_modelo: grupoNome});
-  }catch(e){
-    console.error('Falha ao buscar flags de sensor array:', e);
-  }
-
-  // combina todos os valores não-zero num único inteiro pra achar todos os componentes envolvidos
-  let combinado = 0;
-  valores.forEach(v => { if(v) combinado |= v; });
-  if(!combinado) return '';
-
-  const encontrados = [];
-  (linhasFlags || []).forEach(row => {
-    const mask = parseInt(row.padrao, 16);
-    if(mask && (combinado & mask) === mask) encontrados.push(row);
-  });
-
-  if(encontrados.length === 0){
-    return `<div class="verdict unknown">
-      <span class="tag">${t('tagSensorArray')}</span>
-      <h3>${t('assinaturaNaoCatalogada')}</h3>
-      <p>${t('sensorSemMatchTexto')}</p>
-    </div>`;
-  }
-
-  const blocos = encontrados.map((row, i) => `
-    <div style="${i > 0 ? 'margin-top:14px;padding-top:14px;border-top:1px dashed var(--line);' : ''}">
-      <h3 style="margin:0 0 6px;">${escapeHtml(row.componente)}</h3>
-      ${row.causa ? `<p><span class="label">${t('labelCausa')}</span>${escapeHtml(row.causa)}</p>` : ''}
-      <p class="solucao"><span class="label">${t('labelSolucao')}</span>${escapeHtml(row.solucao || '')}</p>
-    </div>
-  `).join('');
-
-  return `<div class="verdict">
-    <span class="tag">${t('tagSensorArray')}</span>
-    ${blocos}
-  </div>`;
+/* Orçamento */
+const st = {model:null, svc:null};
+const genOpts = $('#genOpts'), modelSel = $('#modelSel'), svcOpts = $('#svcOpts'), quoteBtn = $('#quoteBtn');
+genOpts.innerHTML = Object.keys(GENERATIONS).map(g => `<button type="button" class="opt" data-gen="${esc(g)}">${esc(g)}</button>`).join('');
+svcOpts.innerHTML = QUOTE_SERVICES.map(s => `<button type="button" class="opt" data-svc="${esc(s)}">${esc(s)}</button>`).join('');
+genOpts.addEventListener('click', e => {
+  const b = e.target.closest('[data-gen]'); if (!b) return;
+  $$('.opt', genOpts).forEach(x => x.classList.toggle('on', x === b));
+  st.model = null; modelSel.disabled = false;
+  modelSel.innerHTML = '<option value="">Selecione o modelo</option>' + GENERATIONS[b.dataset.gen].map(m => `<option>${esc(m)}</option>`).join('');
+  upd();
+});
+modelSel.addEventListener('change', () => { st.model = modelSel.value || null; upd(); });
+svcOpts.addEventListener('click', e => {
+  const b = e.target.closest('[data-svc]'); if (!b) return;
+  $$('.opt', svcOpts).forEach(x => x.classList.toggle('on', x === b));
+  st.svc = b.dataset.svc; upd();
+});
+function upd(){
+  const ok = st.model && st.svc;
+  quoteBtn.setAttribute('aria-disabled', ok ? 'false' : 'true');
+  quoteBtn.href = ok ? waLink(`Olá, iTechLab! Vim pelo site e gostaria de um orçamento.\n\n📱 Modelo: ${st.model}\n🔧 Serviço: ${st.svc}`) : '#';
+  $('#qHint').textContent = ok ? `${st.model} · ${st.svc}` : (!st.model ? 'Selecione o modelo do seu iPhone' : 'Agora escolha o serviço');
 }
 
-// ---------- Utilidades ----------
-function extrairCampo(regex, texto){
-  const m = texto.match(regex);
-  return m ? m[1].trim() : null;
-}
-
-function extrairHexs(texto){
-  const encontrados = texto.match(/0x[0-9a-fA-F]{4,}/g) || [];
-  return [...new Set(encontrados)].slice(0, 15);
-}
-
-function hexParaDecASCII(hexStr){
-  const limpo = hexStr.replace(/^0x/i, '');
-  let dec;
-  try { dec = BigInt('0x' + limpo).toString(10); } catch(e){ dec = '—'; }
-  let ascii = '';
-  if(limpo.length % 2 === 0 && limpo.length <= 16){
-    for(let i=0; i<limpo.length; i+=2){
-      const code = parseInt(limpo.substr(i,2), 16);
-      ascii += (code >= 32 && code <= 126) ? String.fromCharCode(code) : '·';
-    }
-  }
-  return {dec, ascii};
-}
-
-// ---------- Modo de entrada ----------
-let modoAtual = 'full';
-function setMode(m){
-  modoAtual = m;
-  document.getElementById('tabFull').classList.toggle('active', m==='full');
-  document.getElementById('tabSnippet').classList.toggle('active', m==='snippet');
-  document.getElementById('modeFull').style.display = m==='full' ? 'block' : 'none';
-  document.getElementById('modeSnippet').style.display = m==='snippet' ? 'block' : 'none';
-  document.getElementById('btnExemplo').textContent = m==='full' ? t('btnExemplo') : t('btnExemploCodigo');
-  limparLog();
-}
-
-// ---------- Ação principal ----------
-async function analisar(){
-  const texto = modoAtual === 'full'
-    ? document.getElementById('logInput').value
-    : document.getElementById('snippetInput').value;
-
-  if(!texto.trim()){
-    document.getElementById('resultado').innerHTML = `<p class="empty">${modoAtual==='full' ? t('coleLogPrimeiro') : t('coleTrechoPrimeiro')}</p>`;
-    return;
-  }
-
-  let html = '';
-  let textoParaMatch = texto; // texto usado para casar com a base de conhecimento
-  let produtoDetectado = null;
-
-  if(modoAtual === 'full'){
-    const jsonParse = tentarParseJsonIps(texto);
-    let campos;
-    if(jsonParse){
-      const {header, body} = jsonParse;
-      produtoDetectado = body.product || null;
-      campos = {
-        [t('campoModelo')]: body.product || null,
-        [t('campoBuild')]: body.build || header.os_version || null,
-        [t('campoIncident')]: body.incident || header.incident_id || null,
-        [t('campoData')]: body.date || header.timestamp || null,
-        [t('campoPanicString')]: body.panicString ? body.panicString.split('\n')[0] : null
-      };
-      textoParaMatch = body.panicString || texto;
-      html += `<p class="hint" style="margin-bottom:10px;">${t('arquivoReconhecido')}</p>`;
-    } else {
-      campos = {
-        [t('campoModelo')]: extrairCampo(/Hardware Model:\s*(.+)/i, texto) || extrairCampo(/product\s*[:=]\s*"?([\w,]+)"?/i, texto),
-        [t('campoIncident')]: extrairCampo(/Incident Identifier:\s*(.+)/i, texto),
-        [t('campoVersaoIOS')]: extrairCampo(/(?:OS|iOS) Version:\s*(.+)/i, texto),
-        [t('campoProcesso')]: extrairCampo(/Process:\s*(.+)/i, texto),
-        [t('campoPanicString')]: extrairCampo(/panic\(cpu \d+[^)]*\):\s*(.+)/i, texto) || extrairCampo(/(panic string|Debugger message):\s*(.+)/i, texto)
-      };
-      produtoDetectado = campos[t('campoModelo')];
-    }
-    html += '<div class="field-list">';
-    for(const [k,v] of Object.entries(campos)){
-      html += `<div class="field"><span class="k">${k}</span><span class="v">${v ? escapeHtml(v) : '<span style="color:#4b5866">' + t('naoEncontrado') + '</span>'}</span></div>`;
-    }
-    html += '</div>';
-  } else {
-    html += `<div class="field-list"><div class="field"><span class="k">${t('campoTrecho')}</span><span class="v">${escapeHtml(texto.trim())}</span></div></div>`;
-  }
-
-  const hexsEncontrados = extrairHexs(texto + '\n' + textoParaMatch);
-
-  // 1) tenta a base remota (Supabase) via RPC
-  if(conexaoOk === null){
-    await carregarBaseRemota();
-  }
-  const matchRemoto = await buscarNaBaseRemota(textoParaMatch, hexsEncontrados, produtoDetectado);
-
-  // 2) fallback: base local de exemplos
-  let match = null;
-  if(!matchRemoto){
-    for(const item of BASE_CONHECIMENTO){
-      if(item.padroes.some(p => p.test(textoParaMatch))){ match = item; break; }
-    }
-  }
-
-  const sensorArrayHtml = await montarCardSensorArray(textoParaMatch, produtoDetectado);
-
-  if(sensorArrayHtml){
-    html += sensorArrayHtml;
-  } else if(matchRemoto){
-    html += `<div class="verdict">
-      <span class="tag">${t('tagBaseOnline')}</span>
-      <h3>${escapeHtml(matchRemoto.componente || matchRemoto.padrao)}</h3>
-      ${matchRemoto.modelo ? `<p><span class="label">${t('campoModelo')}</span>${escapeHtml(matchRemoto.modelo)}</p>` : ''}
-      ${matchRemoto.causa ? `<p><span class="label">${t('labelCausa')}</span>${escapeHtml(matchRemoto.causa)}</p>` : ''}
-      <p class="solucao"><span class="label">${t('labelSolucao')}</span>${escapeHtml(matchRemoto.solucao || '')}</p>
-    </div>`;
-  } else if(match){
-    html += `<div class="verdict">
-      <span class="tag">${t('tagExemploLocal')}</span>
-      <h3>${match.nome}</h3>
-      <p><span class="label">${t('labelCausa')}</span>${match.causa}</p>
-      <p class="solucao"><span class="label">${t('labelSolucao')}</span>${match.solucao}</p>
-    </div>`;
-  } else {
-    html += `<div class="verdict unknown">
-      <span class="tag">${t('tagSemMatch')}</span>
-      <h3>${t('assinaturaNaoCatalogada')}</h3>
-      <p>${t('semMatchTexto')}</p>
-    </div>`;
-  }
-
-  document.getElementById('resultado').innerHTML = html;
-
-  // tabela de hex
-  const hexs = hexsEncontrados;
-  if(hexs.length === 0){
-    document.getElementById('hexResult').innerHTML = '<p class="empty">' + t('nenhumHex') + '</p>';
-  } else {
-    let tabela = '<table class="hex-table"><thead><tr><th>' + t('thHex') + '</th><th>' + t('thDec') + '</th><th>' + t('thAscii') + '</th></tr></thead><tbody>';
-    hexs.forEach(h => {
-      const {dec, ascii} = hexParaDecASCII(h);
-      tabela += `<tr><td>${h}</td><td>${dec}</td><td>${ascii || '—'}</td></tr>`;
-    });
-    tabela += '</tbody></table>';
-    document.getElementById('hexResult').innerHTML = tabela;
-  }
-}
-
-function limparLog(){
-  document.getElementById('logInput').value = '';
-  document.getElementById('snippetInput').value = '';
-  document.getElementById('fileName').textContent = '';
-  document.getElementById('fileInput').value = '';
-  document.getElementById('resultado').innerHTML = `<p class="empty">${modoAtual==='full' ? t('resultadoEmptyFull') : t('resultadoEmptySnippet')}</p>`;
-  document.getElementById('hexResult').innerHTML = '<p class="empty">' + t('hexEmptyAnalise') + '</p>';
-}
-
-function carregarExemplo(){
-  if(modoAtual === 'full'){
-    document.getElementById('logInput').value =
-`{"bug_type":"210","timestamp":"2026-01-15 07:28:50.00 -0800","os_version":"iPhone OS 26.1 (23B85)","roots_installed":0,"incident_id":"A5AC61D1-4E4A-48F6-8E4B-253A858D2FBC"}
-{
-  "product" : "iPhone12,1",
-  "build" : "iPhone OS 26.1 (23B85)",
-  "incident" : "A5AC61D1-4E4A-48F6-8E4B-253A858D2FBC",
-  "date" : "2026-01-15 07:28:50.28 -0800",
-  "panicString" : "panic(cpu 1 caller 0xfffffff0235500c4): userspace watchdog timeout: no successful checkins from thermalmonitord (2 induced crashes) in 180 seconds\\nservice returned not alive with context : is_alive_func returned unhealthy : current 3bfffffffffff, mask 1ffffffffffff, expected 1ffffffffffff. SD: 1 BC: 1 RC: -1 BS: 1, Missing sensor(s): mic2 \\nDebugger message: panic"
-}`;
-  } else {
-    document.getElementById('snippetInput').value = 'Missing sensor(s): mic2';
-  }
-}
-
-function escapeHtml(str){
-  return str.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-}
-
-// ---------- Conversor manual ----------
-function fromHex(){
-  const v = document.getElementById('hexIn').value.trim();
-  if(!v){ return; }
-  try{
-    const clean = v.replace(/^0x/i,'');
-    const dec = BigInt('0x'+clean);
-    document.getElementById('decIn').value = dec.toString(10);
-    document.getElementById('binIn').value = dec.toString(2);
-    const {ascii} = hexParaDecASCII(clean);
-    document.getElementById('asciiOut').value = ascii || '—';
-  }catch(e){}
-}
-function fromDec(){
-  const v = document.getElementById('decIn').value.trim();
-  if(!v || isNaN(v)){ return; }
-  const dec = BigInt(v);
-  document.getElementById('hexIn').value = '0x' + dec.toString(16);
-  document.getElementById('binIn').value = dec.toString(2);
-  const {ascii} = hexParaDecASCII(dec.toString(16));
-  document.getElementById('asciiOut').value = ascii || '—';
-}
-function fromBin(){
-  const v = document.getElementById('binIn').value.trim();
-  if(!v || !/^[01]+$/.test(v)){ return; }
-  const dec = BigInt('0b'+v);
-  document.getElementById('hexIn').value = '0x' + dec.toString(16);
-  document.getElementById('decIn').value = dec.toString(10);
-  const {ascii} = hexParaDecASCII(dec.toString(16));
-  document.getElementById('asciiOut').value = ascii || '—';
-}
-
-// carrega a base assim que a página abre (agora sim, depois de tudo declarado)
-aplicarIdioma();
-carregarBaseRemota();
+/* Reveal */
+const io = 'IntersectionObserver' in window ? new IntersectionObserver(es => es.forEach(en => {
+  if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); }
+}), {threshold:.12, rootMargin:'0px 0px -40px 0px'}) : null;
+$$('.reveal').forEach(el => io ? io.observe(el) : el.classList.add('in'));
 </script>
 </body>
 </html>
